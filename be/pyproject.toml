@@ -1,0 +1,62 @@
+[tool.poetry]
+name = "dsp"
+version = "0.1.0"
+description = ""
+authors = ["Maciej Malycha <koadjunky@gmail.com>"]
+packages = [
+    { include = "dsp_be", from = "src" },
+]
+
+
+[tool.poetry.dependencies]
+python = "^3.8"
+fastapi = "^0.70.0"
+uvicorn = {extras = ["standard"], version = "^0.14.0"}
+environs = "^9.3.5"
+loguru = "^0.5.3"
+nptyping = "^1.4.4"
+pydantic = "^1.8.2"
+peewee = "^3.14.8"
+
+
+[tool.poetry.dev-dependencies]
+pdbpp = "^0.10.3"
+pre-commit = "^2.13.0"
+pytest = "^6.2.4"
+black = {extras = ["jupyter"], version = "^21.9b0"}
+isort = "^5.9.2"
+autoflake = "^1.4"
+mypy = "^0.910"
+vulture = "^2.3"
+
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+
+[tool.black]
+# https://github.com/psf/black
+line-length = 88
+target_version = ['py38']
+exclude = '''
+(
+  /(
+    \.git
+    | \.pytest_cache
+    | venv
+    | .venv
+    | migrations
+  )/
+)
+'''
+
+[tool.isort]
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+line_length = 88
+skip_glob = ["*/migrations/*.py", "*/venv/*", "*/.venv/*", "*/data/*"]
+
