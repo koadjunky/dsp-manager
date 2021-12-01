@@ -1,14 +1,14 @@
-from peewee import Model, Field, CharField, IntegerField, SqliteDatabase, DatabaseProxy
+from peewee import Field, CharField, IntegerField, ForeignKeyField
 
+from dsp_be.logic import test_database, BaseModel
+from dsp_be.logic.planet import Planet
 from dsp_be.logic.recipe import Recipe, recipes
 from dsp_be.logic.machine import Machine, machines
 from dsp_be.logic.stack import Stack
 
 
-db_proxy = DatabaseProxy()
-
-
-class Factory(Model):
+class Factory(BaseModel):
+    planet: Field = ForeignKeyField(Planet, backref="planets")
     recipe_name: Field = CharField()
     machine_name: Field = CharField()
     count: Field = IntegerField()
@@ -38,14 +38,9 @@ class Factory(Model):
     recipe: Recipe = property(get_recipe, set_recipe)
     machine: Machine = property(get_machine, set_machine)
 
-    class Meta:
-        database = db_proxy
 
 if __name__ == '__main__':
-    db = SqliteDatabase(':memory:')
-    db_proxy.initialize(db)
-    db_proxy.connect()
-    db_proxy.create_tables([Factory])
-    factory = Factory(machine_name='assembler1', recipe_name='circuit_board', count=6)
-    factory.save()
+    test_database([Planet, Factory])
+    earth = Planet.create(name='Earth')
+    factory = Factory.create(planet=earth, machine_name='assembler1', recipe_name='circuit_board', count=6)
     print(factory.production())
