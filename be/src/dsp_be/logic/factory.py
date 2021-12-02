@@ -8,7 +8,7 @@ from dsp_be.logic.stack import Stack
 
 
 class Factory(BaseModel):
-    planet: Field = ForeignKeyField(Planet, backref="planets")
+    planet: Field = ForeignKeyField(Planet, backref="factories")
     recipe_name: Field = CharField()
     machine_name: Field = CharField()
     count: Field = IntegerField()
@@ -24,14 +24,14 @@ class Factory(BaseModel):
     def get_recipe(self) -> Recipe:
         return recipes[self.recipe_name]
 
-    def set_recipe(self, recipe: Recipe):
+    def set_recipe(self, recipe: Recipe) -> None:
         self.recipe_name = recipe.name
         self.save()
 
     def get_machine(self) -> Machine:
         return machines[self.machine_name]
 
-    def set_machine(self, machine: Machine):
+    def set_machine(self, machine: Machine) -> None:
         self.machine_name = machine.name
         self.save()
 
@@ -40,7 +40,10 @@ class Factory(BaseModel):
 
 
 if __name__ == '__main__':
-    test_database([Planet, Factory])
-    earth = Planet.create(name='Earth')
-    factory = Factory.create(planet=earth, machine_name='assembler1', recipe_name='circuit_board', count=6)
-    print(factory.production())
+    from dsp_be.logic.star import Star
+    test_database([Star, Planet, Factory])
+    sun = Star.create(name='Sun')
+    earth = Planet.create(name='Earth', star=sun)
+    factory1 = Factory.create(planet=earth, machine_name='assembler1', recipe_name='circuit_board', count=6)
+    factory2 = Factory.create(planet=earth, machine_name='arc_smelter', recipe_name='iron_ingot', count=9)
+    print(sun.production())
