@@ -19,4 +19,8 @@ machines = {
     "fractinator": Machine("fractinator", "fractinator", 1.0),
     "particle_collider": Machine("particle_collider", "particle_collider", 1.0),
     "matrix_lab": Machine("matrix_lab", "matrix_lab", 1.0),
+    "mine": Machine("mine", "mine", 1.0),
+    "water_pump": Machine("water_pump", "water_pump", 1.0),
+    "oil_extractor": Machine("oil_extractor", "oil_extractor", 1.0),
+    "orbital_collector": Machine("orbital_collector", "orbital_collector", 1.0),
 }

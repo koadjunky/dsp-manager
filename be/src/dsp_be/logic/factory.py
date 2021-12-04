@@ -14,15 +14,10 @@ class Factory(BaseModel):
     count: Field = IntegerField()
 
     def production(self) -> Stack:
-        stack = Stack()
-        for name, value in self.recipe.products.items():
-            stack.add(name, value * self.count * self.machine.speed / self.recipe.time)
-        for name, value in self.recipe.raws.items():
-            stack.add(name, -value * self.count * self.machine.speed / self.recipe.time)
-        return stack
+        return self.recipe.production(self.count, self.machine, self.planet)
 
     def get_recipe(self) -> Recipe:
-        return recipes[self.recipe_name]
+        return recipes.get(self.recipe_name)
 
     def set_recipe(self, recipe: Recipe) -> None:
         self.recipe_name = recipe.name

@@ -1,18 +1,119 @@
 import copy
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Dict
 
+from dsp_be.logic.machine import Machine
+from dsp_be.logic.planet import Planet
+from dsp_be.logic.stack import Stack
+from dsp_be.logic.config import config
+
 
 @dataclass
-class Recipe:
+class Recipe(ABC):
+    name: str
+    machine: str
+
+    @abstractmethod
+    def production(self, count: int, machine: Machine, planet: Planet) -> Stack:
+        pass
+
+
+@dataclass
+class FractinatorRecipe(Recipe):
+    name: str = "fractinator"
+    machine: str = "fractinator"
+
+    def production(self, count: int, machine: Machine, planet: Planet) -> Stack:
+        stack = Stack()
+        stack.add("deuterium", machine.speed * (1.0 - (0.99 ** count)))
+        stack.add("hydrogen", -machine.speed * (1.0 - (0.99 ** count)))
+        return stack
+
+
+@dataclass
+class PumpRecipe(Recipe):
+    name: str
+    product: str = "water"
+    machine: str = "water_pump"
+
+    def production(self, count: int, machine: Machine, planet: Planet) -> Stack:
+        stack = Stack()
+        stack.add(self.product, 5.0 / 6.0 * count * (1 + 0.1 * config.veins_utilization))
+        return stack
+
+
+@dataclass
+class OilRecipe(Recipe):
+    name: str = "oil_extractor"
+    product: str = "oil_extractor"
+    machine: str = "oil_extractor"
+
+    def production(self, count: int, machine: Machine, planet: Planet) -> Stack:
+        stack = Stack()
+        stack.add("crude_oil", count * machine.speed * (1 + 0.1 * config.veins_utilization))
+        return stack
+
+
+@dataclass
+class CollectorRecipe(Recipe):
+    name: str = "orbital_collector"
+    machine: str = "orbital_collector"
+
+    def production(self, count: int, machine: Machine, planet: Planet) -> Stack:
+        fire_ice = 8 * count * planet.fire_ice * (1 + 0.1 * config.veins_utilization)
+        hydrogen = 8 * count * planet.hydrogen * (1 + 0.1 * config.veins_utilization)
+        deuterium = 8 * count * planet.deuterium * (1 + 0.1 * config.veins_utilization)
+        power = 30 * count
+        fire_ice_power = 4.8 * fire_ice
+        hydrogen_power = 9.0 * hydrogen
+        deuterium_power = 9.0 * deuterium
+        total_power = fire_ice_power + hydrogen_power + deuterium_power
+        fire_ice_fraction = fire_ice_power / total_power
+        hydrogen_fraction = hydrogen_power / total_power
+        deuterium_fraction = deuterium_power / total_power
+        stack = Stack()
+        stack.add("fire_ice", (fire_ice_power - fire_ice_fraction * power) / 4.8)
+        stack.add("hydrogen", (hydrogen_power - hydrogen_fraction * power) / 9.0)
+        stack.add("deuterium", (deuterium_power - deuterium_fraction * power) / 9.0)
+        return stack
+
+
+@dataclass
+class MineRecipe(Recipe):
+    name: str
+    product: str = "coal"
+    machine: str = "mine"
+
+    def production(self, count: int, machine: Machine, planet: Planet) -> Stack:
+        stack = Stack()
+        stack.add(self.product, 0.5 * count * (1 + 0.1 * config.veins_utilization))
+        return stack
+
+
+mine_recipes_txt = ["coal", "copper_ore", "fire_ice", "fractal_silicon", "iron_ore", "kimberlite_ore",
+                    "optical_grating_crystal", "organic_crystal", "silicon_ore", "spinform_stalagmite_crystal",
+                    "stone", "titanium_ore", "unipolar_magnet"]
+
+
+@dataclass
+class FactoryRecipe(Recipe):
     name: str
     machine: str
     products: Dict[str, int]
     raws: Dict[str, int]
     time: float
 
+    def production(self, count: int, machine: Machine, planet: Planet) -> Stack:
+        stack = Stack()
+        for name, value in self.products.items():
+            stack.add(name, value * count * machine.speed / self.time)
+        for name, value in self.raws.items():
+            stack.add(name, -value * count * machine.speed / self.time)
+        return stack
 
-recipes_txt = [
+
+factory_recipes_txt = [
     {
         "name": "gear",
         "machine": "assembler",
@@ -672,18 +773,6 @@ recipes_txt = [
         "time": 4.0
     },
     {
-        "name": "fractinator",
-        "machine": "fractinator",
-        "products": {
-            "deuterium": 3,
-            "hydrogen": 297
-        },
-        "raws": {
-            "hydrogen": 300,
-        },
-        "time": 10.0
-    },
-    {
         "name": "blue_science",
         "machine": "matrix_lab",
         "products": {
@@ -762,19 +851,39 @@ recipes_txt = [
 ]
 
 
-def load_recipes() -> Dict[str, Recipe]:
-    recipes = {}
-    for recipe_txt in recipes_txt:
-        recipe = Recipe(name=recipe_txt["name"], machine=recipe_txt["machine"], products=copy.deepcopy(recipe_txt["products"]),
-                        raws=copy.deepcopy(recipe_txt["raws"]), time=recipe_txt["time"])
-        if recipe.name in recipes:
+class RecipeBook:
+
+    def __init__(self):
+        self.recipes: Dict[str, Recipe] = {}
+
+    def add(self, recipe: Recipe) -> None:
+        if recipe.name in self.recipes:
             raise Exception(f"Duplicate recipe name {recipe.name}")
-        recipes[recipe.name] = recipe
-    return recipes
+        self.recipes[recipe.name] = recipe
+
+    def get(self, name):
+        return self.recipes[name]
+
+
+def load_recipes() -> RecipeBook:
+    rb = RecipeBook()
+    for product in mine_recipes_txt:
+        rb.add(MineRecipe(name=product + "_vein", product=product))
+    for recipe_txt in factory_recipes_txt:
+        recipe = FactoryRecipe(name=recipe_txt["name"], machine=recipe_txt["machine"], products=copy.deepcopy(recipe_txt["products"]),
+                               raws=copy.deepcopy(recipe_txt["raws"]), time=recipe_txt["time"])
+        rb.add(recipe)
+    rb.add(FractinatorRecipe())
+    rb.add(PumpRecipe(name="water_pump", product="water"))
+    rb.add(PumpRecipe(name="sulfric_acid_pump", product="sulfric_acid"))
+    rb.add(CollectorRecipe())
+    return rb
 
 
 recipes = load_recipes()
 
 
 if __name__ == '__main__':
-    print(recipes)
+    from dsp_be.logic.machine import machines
+    planet = Planet(fire_ice=0.5, hydrogen=0.25, deuterium=0.0)
+    print(recipes.get("orbital_collector").production(40, machines["orbital_collector"], planet))
