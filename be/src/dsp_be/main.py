@@ -20,9 +20,9 @@ async def logging_dependency(request: Request):
     logger.debug("Headers:")
     for name, value in request.headers.items():
         logger.debug(f"\t{name}: {value}")
-    form = await request.form()
-    logger.debug("Body:")
-    logger.debug(f"\t{form}")
+    #form = await request.form()
+    #logger.debug("Body:")
+    #logger.debug(f"\t{form}")
 
 
 def get_app() -> FastAPI:
