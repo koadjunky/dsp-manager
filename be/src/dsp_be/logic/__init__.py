@@ -35,6 +35,13 @@ def test_database(tables: List[Type[Model]]):
     db_proxy.connect()
     db_proxy.create_tables(tables)
 
+def production_database(tables: List[Type[Model]]):
+    db = SqliteDatabase('production.db', check_same_thread=False)
+    db._state = PeeweeConnectionState()
+    db_proxy.initialize(db)
+    db_proxy.connect()
+    db_proxy.create_tables(tables)
+
 
 def close_database():
     db_proxy.close()
