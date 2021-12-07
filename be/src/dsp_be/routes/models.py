@@ -20,3 +20,12 @@ class Star(BaseModel):
     class Config:
         orm_mode = True
         getter_dict = PeeweeGetterDict
+
+
+class Planet(BaseModel):
+    id: int
+    name: str
+
+    class Config:
+        orm_mode = True
+        getter_dict = PeeweeGetterDict
