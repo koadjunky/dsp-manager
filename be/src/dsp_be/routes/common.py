@@ -17,7 +17,7 @@ async def read_root():
 @router.get("/favicon.ico", include_in_schema=False)
 async def favicon():
     def iterfile():
-        with resources.open_binary("branding_service.api.routes", "favicon.ico") as f:
+        with resources.open_binary("dsp_be.routes", "favicon.ico") as f:
             yield from f
 
     return StreamingResponse(iterfile(), media_type="image/x-icon")
