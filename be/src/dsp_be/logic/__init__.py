@@ -23,7 +23,7 @@ class PeeweeConnectionState(_ConnectionState):
         return self._state.get()[name]
 
 
-class BaseModel(Model):
+class DspModel(Model):
     class Meta:
         database = db_proxy
 
@@ -34,6 +34,7 @@ def test_database(tables: List[Type[Model]]):
     db_proxy.initialize(db)
     db_proxy.connect()
     db_proxy.create_tables(tables)
+
 
 def production_database(tables: List[Type[Model]]):
     db = SqliteDatabase('production.db', check_same_thread=False)

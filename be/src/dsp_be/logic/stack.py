@@ -16,3 +16,6 @@ class Stack:
     def combine(self, stack: 'Stack') -> None:
         for name, value in stack.products.items():
             self.add(name, value)
+
+    def to_dict(self):
+        return self.products

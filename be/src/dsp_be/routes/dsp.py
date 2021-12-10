@@ -2,33 +2,68 @@ from typing import List
 
 from fastapi import APIRouter, Depends
 
-from dsp_be.logic import star, planet, get_db
-from dsp_be.routes import models
+from dsp_be.logic import get_db
+from dsp_be.logic.star import Star
+from dsp_be.logic.planet import Planet
+from dsp_be.routes.models import StarModel, PlanetModel, FactoryModel
 
 router = APIRouter()
 
 
 @router.get(
     "/api/stars",
-    response_model=List[models.Star],
+    response_model=List[StarModel],
     dependencies=[Depends(get_db)],
     summary="Return list of all recorded star systems.",
     description="Return list of all recorded star systems.",
     response_description="Return list of all recorded star systems."
 )
-def get_stars() -> List[star.Star]:
-    stars = list(star.Star.select())
+def get_stars() -> List[Star]:
+    stars = list(Star.select())
     return stars
 
 
 @router.get(
     "/api/stars/{star_id}",
-    response_model=List[models.Planet],
+    response_model=List[PlanetModel],
     dependencies=[Depends(get_db)],
     summary="Return list of all recorded planets in star sysem.",
     description="Return list of all recorded star systems.",
     response_description="Return list of all recorded star systems."
 )
-def get_planets(star_id:int) -> List[planet.Planet]:
-    planets = list(planet.Planet.select().where(planet.Planet.star_id == star_id))
+def get_planets(star_id:int) -> List[Planet]:
+    planets = list(Planet.select().where(Planet.star_id == star_id))
     return planets
+
+
+#TODO: make Factory.name
+@router.get(
+    "/api/stars/{star_id}/planets/{planet_id}",
+    response_model=PlanetModel,
+    dependencies=[Depends(get_db)],
+    summary="Return planet with all factories.",
+    description="Return planet with all factories.",
+    response_description="Return planet with all factories.",
+)
+def get_planet(star_id:int, planet_id:int) -> PlanetModel:
+    planet = list(Planet.select().where(Planet.star_id == star_id, Planet.id == planet_id))[0]
+    factory_model_list = []
+    for factory in planet.factories:
+        factory_model_list.append(
+            FactoryModel(
+                id=factory.id,
+                name="",
+                recipe=factory.recipe_name,
+                machine=factory.machine_name,
+                count=factory.count,
+                production=factory.production().to_dict()
+            )
+        )
+    planet_model = PlanetModel(
+        id=planet.id,
+        name=planet.name,
+        imports={},
+        exports={},
+        factories = factory_model_list
+    )
+    return planet_model

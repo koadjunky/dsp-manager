@@ -1,13 +1,13 @@
 from peewee import Field, CharField, IntegerField, ForeignKeyField
 
-from dsp_be.logic import test_database, BaseModel
+from dsp_be.logic import test_database, DspModel
 from dsp_be.logic.planet import Planet
 from dsp_be.logic.recipe import Recipe, recipes
 from dsp_be.logic.machine import Machine, machines
 from dsp_be.logic.stack import Stack
 
 
-class Factory(BaseModel):
+class Factory(DspModel):
     planet: Field = ForeignKeyField(Planet, backref="factories")
     recipe_name: Field = CharField()
     machine_name: Field = CharField()

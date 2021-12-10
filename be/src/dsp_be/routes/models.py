@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Dict, List
 
 import peewee
 from pydantic import BaseModel
@@ -13,7 +13,7 @@ class PeeweeGetterDict(GetterDict):
         return res
 
 
-class Star(BaseModel):
+class StarModel(BaseModel):
     id: int
     name: str
 
@@ -22,9 +22,21 @@ class Star(BaseModel):
         getter_dict = PeeweeGetterDict
 
 
-class Planet(BaseModel):
+class FactoryModel(BaseModel):
     id: int
     name: str
+    recipe: str
+    machine: str
+    count: int
+    production: Dict[str, float]
+
+
+class PlanetModel(BaseModel):
+    id: int
+    name: str
+    imports: Dict[str, float]
+    exports: Dict[str, float]
+    factories: List[FactoryModel]
 
     class Config:
         orm_mode = True
