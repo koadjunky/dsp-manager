@@ -36,7 +36,6 @@ def get_planets(star_id:int) -> List[Planet]:
     return planets
 
 
-#TODO: make Factory.name
 @router.get(
     "/api/stars/{star_id}/planets/{planet_id}",
     response_model=PlanetModel,
@@ -52,7 +51,7 @@ def get_planet(star_id:int, planet_id:int) -> PlanetModel:
         factory_model_list.append(
             FactoryModel(
                 id=factory.id,
-                name="",
+                name=factory.name,
                 recipe=factory.recipe_name,
                 machine=factory.machine_name,
                 count=factory.count,

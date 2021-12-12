@@ -9,6 +9,7 @@ from dsp_be.logic.stack import Stack
 
 class Factory(DspModel):
     planet: Field = ForeignKeyField(Planet, backref="factories")
+    name: Field = CharField()
     recipe_name: Field = CharField()
     machine_name: Field = CharField()
     count: Field = IntegerField()
@@ -39,6 +40,6 @@ if __name__ == '__main__':
     test_database([Star, Planet, Factory])
     sun = Star.create(name='Sun')
     earth = Planet.create(name='Earth', star=sun)
-    factory1 = Factory.create(planet=earth, machine_name='assembler1', recipe_name='circuit_board', count=6)
-    factory2 = Factory.create(planet=earth, machine_name='arc_smelter', recipe_name='iron_ingot', count=9)
+    factory1 = Factory.create(name="Circuit Board #1", planet=earth, machine_name='assembler1', recipe_name='circuit_board', count=6)
+    factory2 = Factory.create(name="Iron Ingot #1", planet=earth, machine_name='arc_smelter', recipe_name='iron_ingot', count=9)
     print(sun.production())
