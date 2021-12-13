@@ -39,7 +39,8 @@ if __name__ == '__main__':
     from dsp_be.logic.star import Star
     test_database([Star, Planet, Factory])
     sun = Star.create(name='Sun')
-    earth = Planet.create(name='Earth', star=sun)
+    earth = Planet.create(name='Earth', star=sun, exports="circuit_board,copper_ingot", imports="iron_ore")
     factory1 = Factory.create(name="Circuit Board #1", planet=earth, machine_name='assembler1', recipe_name='circuit_board', count=6)
     factory2 = Factory.create(name="Iron Ingot #1", planet=earth, machine_name='arc_smelter', recipe_name='iron_ingot', count=9)
-    print(sun.production())
+    print("Sun production: ", sun.production())
+    print("Earth trade: ", earth.trade())

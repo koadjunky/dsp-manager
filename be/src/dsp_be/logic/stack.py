@@ -19,3 +19,7 @@ class Stack:
 
     def to_dict(self):
         return self.products
+
+    def __iter__(self):
+        for k, v in self.products.items():
+            yield k, v
