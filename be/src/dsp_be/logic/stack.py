@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Dict
+from typing import Dict, List, Tuple
 
 
 @dataclass
@@ -17,8 +17,11 @@ class Stack:
         for name, value in stack.products.items():
             self.add(name, value)
 
-    def to_dict(self):
+    def to_dict(self) -> Dict[str, float]:
         return self.products
+
+    def to_list(self) -> List[Tuple[str, float]]:
+        return [(k, v) for k, v in self.products.items()]
 
     def __iter__(self):
         for k, v in self.products.items():

@@ -31,7 +31,7 @@ class System extends React.Component {
 class Planet extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {};
+        this.state = {trade: []};
     }
     componentDidMount() {
         fetch('/dsp/api/stars/1/planets/1')
@@ -45,9 +45,12 @@ class Planet extends React.Component {
     render() {
         return (
             <div className="system">
+                <div className='id'>{this.state.id}</div>
                 <div className="name">{this.state.name}</div>
                 <div className="title">Imports</div>
+                    {this.state.trade.map(item => item[1] < 0 ? <div>{item[0]}:{item[1]}</div> : "")}
                 <div className="title">Exports</div>
+                    {this.state.trade.map(item => item[1] > 0 ? <div>{item[0]}:{item[1]}</div> : "")}
             </div>
         )
     }

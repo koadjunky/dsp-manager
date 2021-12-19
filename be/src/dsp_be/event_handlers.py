@@ -12,8 +12,8 @@ def start_app_handler(app: FastAPI) -> Callable:
         from dsp_be.logic.factory import Factory
         from dsp_be.logic import test_database, close_database
         test_database([Star, Planet, Factory])
-        sun, _ = Star.get_or_create(name='Sun')
-        earth, _ = Planet.get_or_create(name='Earth', star=sun)
+        sun, _ = Star.get_or_create(name='Sun', exports="circuit_board,copper_ingot", imports="iron_ore")
+        earth, _ = Planet.get_or_create(name='Earth', star=sun, exports="processor", imports="")
         Factory.get_or_create(name="Processor #1", planet=earth, machine_name="assembler2", recipe_name="processor", count=3)
         Factory.get_or_create(name="Circuit Board #1", planet=earth, machine_name="assembler2", recipe_name="circuit_board", count=1)
         Factory.get_or_create(name="Iron Ingot #1", planet=earth, machine_name="arc_smelter", recipe_name="iron_ingot", count=2)
@@ -23,7 +23,7 @@ def start_app_handler(app: FastAPI) -> Callable:
         Factory.get_or_create(name="Silicon Mine #1", planet=earth, machine_name="mine", recipe_name="silicon_ore_vein", count=16)
         Factory.get_or_create(name="Copper Ingot #1", planet=earth, machine_name="arc_smelter", recipe_name="copper_ingot", count=3)
         Factory.get_or_create(name="Copper Mine #1", planet=earth, machine_name="mine", recipe_name="copper_ore_vein", count=6)
-        print(sun.production())
+        print(earth.trade())
         close_database()
     return startup
 

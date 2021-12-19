@@ -1,5 +1,6 @@
 from typing import List
 
+from loguru import logger
 from fastapi import APIRouter, Depends
 
 from dsp_be.logic import get_db
@@ -61,8 +62,7 @@ def get_planet(star_id:int, planet_id:int) -> PlanetModel:
     planet_model = PlanetModel(
         id=planet.id,
         name=planet.name,
-        imports={},
-        exports={},
+        trade=planet.trade().to_list(),
         factories = factory_model_list
     )
     return planet_model

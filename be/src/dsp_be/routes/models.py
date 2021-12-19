@@ -1,4 +1,4 @@
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 
 import peewee
 from pydantic import BaseModel
@@ -34,8 +34,7 @@ class FactoryModel(BaseModel):
 class PlanetModel(BaseModel):
     id: int
     name: str
-    imports: Dict[str, float]
-    exports: Dict[str, float]
+    trade: List[Tuple[str, float]]
     factories: List[FactoryModel]
 
     class Config:
