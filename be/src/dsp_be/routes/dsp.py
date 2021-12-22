@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends
 from dsp_be.logic import get_db
 from dsp_be.logic.star import Star
 from dsp_be.logic.planet import Planet
-from dsp_be.routes.models import StarModel, PlanetModel, FactoryModel
+from dsp_be.routes.models import StarModel, PlanetModel, FactoryModel, ProductionModel
 
 router = APIRouter()
 
@@ -59,10 +59,18 @@ def get_planet(star_id:int, planet_id:int) -> PlanetModel:
                 production=factory.production().to_dict()
             )
         )
+    trade_model_list = []
+    for product, value in planet.trade().to_list():
+        trade_model_list.append(
+            ProductionModel(
+                name=product,
+                value=value
+            )
+        )
     planet_model = PlanetModel(
         id=planet.id,
         name=planet.name,
-        trade=planet.trade().to_list(),
+        trade=trade_model_list,
         factories = factory_model_list
     )
     return planet_model

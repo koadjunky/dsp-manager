@@ -45,12 +45,11 @@ class Planet extends React.Component {
     render() {
         return (
             <div className="system">
-                <div className='id'>{this.state.id}</div>
                 <div className="name">{this.state.name}</div>
                 <div className="title">Imports</div>
-                    {this.state.trade.map(item => item[1] < 0 ? <div>{item[0]}:{item[1]}</div> : "")}
+                    {this.state.trade.map(item => item.value < 0 ? <div>{item.name}:{item.value}</div> : "")}
                 <div className="title">Exports</div>
-                    {this.state.trade.map(item => item[1] > 0 ? <div>{item[0]}:{item[1]}</div> : "")}
+                    {this.state.trade.map(item => item.value > 0 ? <div>{item.name}:{item.value}</div> : "")}
             </div>
         )
     }

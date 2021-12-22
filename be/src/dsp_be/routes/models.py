@@ -31,10 +31,15 @@ class FactoryModel(BaseModel):
     production: Dict[str, float]
 
 
+class ProductionModel(BaseModel):
+    name: str
+    value: float
+
+
 class PlanetModel(BaseModel):
     id: int
     name: str
-    trade: List[Tuple[str, float]]
+    trade: List[ProductionModel]
     factories: List[FactoryModel]
 
     class Config:
