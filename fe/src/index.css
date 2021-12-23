@@ -12,3 +12,12 @@ body {
     border: 1px solid #999;
     margin-right: 10px;
 }
+
+.wrapper {
+    display: flex;
+    border: 1px solid #999;
+}
+
+.factory {
+    border: 1px solid #999;
+}
