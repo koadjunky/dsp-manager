@@ -33,3 +33,11 @@ test: # run tests with PYTHONPATH set to root dict
 run:
 	poetry run uvicorn dsp_be.main:app --reload --port 8000 --reload-dir="src"
 
+clean:
+	docker-compose down -v
+
+mongo:
+	docker-compose up
+
+mongosh:
+	mongo -u dsp -p ChangeMe dsp_database

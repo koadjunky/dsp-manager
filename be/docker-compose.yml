@@ -3,6 +3,7 @@ services:
   database:
     image: 'mongo:5.0.5'
     container_name: 'dsp'
+    restart: always
     environment:
       - MONGO_INITDB_DATABASE=dsp_database
       - MONGO_INITDB_ROOT_USERNAME=root

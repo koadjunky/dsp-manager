@@ -1,9 +1,10 @@
 from dataclasses import dataclass, field
-from typing import Dict, List
+from typing import Dict, List, Any
 
 import motor.motor_asyncio
 from bson import ObjectId
 from fastapi.encoders import jsonable_encoder
+from loguru import logger
 
 from dsp_be.logic.factory import Factory
 from dsp_be.logic.planet import Planet
@@ -39,7 +40,7 @@ class FactoryModel:
     count: int
 
     @classmethod
-    def from_logic(cls, factory: Factory):
+    def from_logic(cls, factory: Factory) -> 'FactoryModel':
         model = FactoryModel(
             planet_name=factory.planet_name,
             name=factory.name,
@@ -50,13 +51,13 @@ class FactoryModel:
         return model
 
     @classmethod
-    async def update(cls, factory: Factory):
+    async def update(cls, factory: Factory) -> None:
         model = FactoryModel.from_logic(factory)
-        if (model_db := await db["factory"].find_one({"name": model.name})) is not None:
-            _id = model_db._id
-            await db["factory"].update_one({"_id": _id}, {"$set": jsonable_encoder(model)})
+        if (model_db := await db.factory.find_one({"name": model.name})) is not None:
+            _id = model_db["_id"]
+            await db.factory.update_one({"_id": _id}, {"$set": jsonable_encoder(model)})
         else:
-            await db["factory"].insert_one(jsonable_encoder(model))
+            await db.factory.insert_one(jsonable_encoder(model))
 
 
 @dataclass
@@ -68,7 +69,7 @@ class PlanetModel:
     exports: List[str]
 
     @classmethod
-    def from_logic(cls, planet: Planet):
+    def from_logic(cls, planet: Planet) -> 'PlanetModel':
         model = PlanetModel(
             name=planet.name,
             star_name=planet.star_name,
@@ -79,13 +80,13 @@ class PlanetModel:
         return model
 
     @classmethod
-    async def update(cls, planet: Planet):
+    async def update(cls, planet: Planet) -> None:
         model = PlanetModel.from_logic(planet)
-        if (model_db := await db["planet"].find_one({"name": model.name})) is not None:
-            _id = model_db._id
-            await db["planet"].update_one({"_id": _id}, {"$set": jsonable_encoder(model)})
+        if (model_db := await db.planet.find_one({"name": model.name})) is not None:
+            _id = model_db["_id"]
+            await db.planet.update_one({"_id": _id}, {"$set": jsonable_encoder(model)})
         else:
-            await db["planet"].insert_one(jsonable_encoder(model))
+            await db.planet.insert_one(jsonable_encoder(model))
 
 
 @dataclass
@@ -95,7 +96,7 @@ class StarModel:
     exports: List[str]
 
     @classmethod
-    def from_logic(cls, star: Star):
+    def from_logic(cls, star: Star) -> 'StarModel':
         model = StarModel(
             name=star.name,
             imports=star.imports.copy(),
@@ -103,11 +104,32 @@ class StarModel:
         )
         return model
 
+    def to_logic(self) -> Star:
+        star = Star(
+            name=self.name,
+            imports=self.imports.copy(),
+            exports=self.exports.copy(),
+        )
+        return star
+
     @classmethod
-    async def update(cls, star: Star):
+    def from_dict(cls, document: Dict[str, Any]):
+        model = StarModel(
+            name=document["name"],
+            imports=document["imports"].copy(),
+            exports=document["exports"].copy(),
+        )
+        return model
+
+    @classmethod
+    async def update(cls, star: Star) -> None:
         model = StarModel.from_logic(star)
-        if (model_db := await db["planet"].find_one({"name": model.name})) is not None:
-            _id = model_db._id
-            await db["star"].update_one({"_id": _id}, {"$set": jsonable_encoder(model)})
+        if (model_db := await db.star.find_one({"name": model.name})) is not None:
+            _id = model_db["_id"]
+            await db.star.update_one({"_id": _id}, {"$set": jsonable_encoder(model)})
         else:
-            await db["star"].insert_one(jsonable_encoder(model))
+            await db.star.insert_one(jsonable_encoder(model))
+
+    @classmethod
+    async def list(cls) -> List['StarModel']:
+        return [StarModel.from_dict(doc) async for doc in db.star.find()]
