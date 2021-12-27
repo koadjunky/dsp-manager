@@ -1,18 +1,20 @@
-from peewee import Field, CharField, ForeignKeyField, FloatField
+from dataclasses import dataclass, field
+from typing import Dict, List, Optional
 
-from dsp_be.logic import DspModel
 from dsp_be.logic.stack import Stack
 from dsp_be.logic.star import Star
 
 
-class Planet(DspModel):
-    name: Field = CharField()
-    hydrogen: Field = FloatField(default=0.0)
-    deuterium: Field = FloatField(default=0.0)
-    fire_ice: Field = FloatField(default=0.0)
-    star: Field = ForeignKeyField(Star, backref="planets")
-    imports: Field = CharField(default="")
-    exports: Field = CharField(default="")
+# TODO: Weak refs
+@dataclass
+class Planet:
+    name: str
+    resources: Dict[str, float]
+    imports: List[str]
+    exports: List[str]
+    star: Optional[Star]
+    _star: Star = field(init=False, repr=False, default=None)
+    factories: List['Factory'] = field(default_factory=list)
 
     def production(self) -> Stack:
         result = Stack()
@@ -22,17 +24,25 @@ class Planet(DspModel):
 
     def trade(self) -> Stack:
         result = Stack()
-        imports_list = self.get_imports()
-        exports_list = self.get_exports()
         for k, v in self.production():
-            if k in imports_list and v < 0:
+            if k in self.imports and v < 0:
                 result.add(k, v)
-            elif k in exports_list and v > 0:
+            elif k in self.exports and v > 0:
                 result.add(k, v)
         return result
 
-    def get_imports(self):
-        return [x for x in self.imports.split(",") if x]
+    @property
+    def star_name(self) -> str:
+        return getattr(self._star, 'name', None)
 
-    def get_exports(self):
-        return [x for x in self.exports.split(",") if x]
+    @property
+    def star(self) -> Optional[Star]:
+        return self._star
+
+    @star.setter
+    def star(self, star: Optional[Star]) -> None:
+        if self._star is not None:
+            self._star.planets.remove(self)
+        self._star = star
+        if self._star is not None:
+            self._star.planets.append(self)

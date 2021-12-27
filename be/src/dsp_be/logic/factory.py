@@ -1,46 +1,64 @@
-from peewee import Field, CharField, IntegerField, ForeignKeyField
+from dataclasses import dataclass, field
+from typing import Optional
 
-from dsp_be.logic import test_database, DspModel
 from dsp_be.logic.planet import Planet
 from dsp_be.logic.recipe import Recipe, recipes
 from dsp_be.logic.machine import Machine, machines
 from dsp_be.logic.stack import Stack
 
 
-class Factory(DspModel):
-    planet: Field = ForeignKeyField(Planet, backref="factories")
-    name: Field = CharField()
-    recipe_name: Field = CharField()
-    machine_name: Field = CharField()
-    count: Field = IntegerField()
+@dataclass
+class Factory:
+    name: str
+    recipe_name: str
+    machine_name: str
+    count: int
+    planet: Optional[Planet]
+    _planet: Planet = field(init=False, repr=False, default=None)
 
     def production(self) -> Stack:
         return self.recipe.production(self.count, self.machine, self.planet)
 
-    def get_recipe(self) -> Recipe:
+    @property
+    def planet_name(self) -> str:
+        return getattr(self._planet, 'name', None)
+
+    @property
+    def planet(self) -> Optional[Planet]:
+        return self._planet
+
+    @planet.setter
+    def planet(self, planet: Optional[Planet]) -> None:
+        if self._planet is not None:
+            self._planet.factories.remove(self)
+        self._planet = planet
+        if self._planet is not None:
+            self._planet.factories.append(self)
+
+    @property
+    def recipe(self) -> Recipe:
         return recipes.get(self.recipe_name)
 
-    def set_recipe(self, recipe: Recipe) -> None:
+    @recipe.setter
+    def recipe(self, recipe: Recipe) -> None:
         self.recipe_name = recipe.name
-        self.save()
 
-    def get_machine(self) -> Machine:
+    @property
+    def machine(self) -> Machine:
         return machines[self.machine_name]
 
-    def set_machine(self, machine: Machine) -> None:
+    @machine.setter
+    def machine(self, machine: Machine) -> None:
         self.machine_name = machine.name
-        self.save()
-
-    recipe: Recipe = property(get_recipe, set_recipe)
-    machine: Machine = property(get_machine, set_machine)
 
 
 if __name__ == '__main__':
     from dsp_be.logic.star import Star
-    test_database([Star, Planet, Factory])
-    sun = Star.create(name='Sun', exports="circuit_board,copper_ingot", imports="iron_ore")
-    earth = Planet.create(name='Earth', star=sun, exports="circuit_board,copper_ingot", imports="iron_ore")
-    factory1 = Factory.create(name="Circuit Board #1", planet=earth, machine_name='assembler1', recipe_name='circuit_board', count=6)
-    factory2 = Factory.create(name="Iron Ingot #1", planet=earth, machine_name='arc_smelter', recipe_name='iron_ingot', count=9)
+    sun = Star(name='Sun', exports=["circuit_board", "copper_ingot"], imports=["iron_ore"])
+    earth = Planet(name='Sun 3', resources={}, exports=["circuit_board", "copper_ingot"], imports=["iron_ore"], star=sun)
+    factory1 = Factory(name="Circuit Board #1", machine_name='assembler1', recipe_name='circuit_board', count=6, planet=earth)
+    factory2 = Factory(name="Iron Ingot #1", machine_name='arc_smelter', recipe_name='iron_ingot', count=9, planet=earth)
+    print("Sun production: ", sun.production())
+    print("Earth production: ", earth.production())
     print("Sun trade: ", sun.trade())
     print("Earth trade: ", earth.trade())

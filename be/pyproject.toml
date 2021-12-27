@@ -16,7 +16,7 @@ environs = "^9.3.5"
 loguru = "^0.5.3"
 nptyping = "^1.4.4"
 pydantic = "^1.8.2"
-peewee = "^3.14.8"
+motor = "^2.5.1"
 
 
 [tool.poetry.dev-dependencies]

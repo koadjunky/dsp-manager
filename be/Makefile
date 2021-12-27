@@ -31,6 +31,5 @@ test: # run tests with PYTHONPATH set to root dict
 	poetry run python -m pytest src/
 
 run:
-	rm test.db
 	poetry run uvicorn dsp_be.main:app --reload --port 8000 --reload-dir="src"
 

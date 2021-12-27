@@ -1,25 +1,11 @@
-from typing import Any, Dict, List, Tuple
+from typing import Dict, List
 
-import peewee
 from pydantic import BaseModel
-from pydantic.utils import GetterDict
-
-
-class PeeweeGetterDict(GetterDict):
-    def get(self, key: Any, default: Any = None):
-        res = getattr(self._obj, key, default)
-        if isinstance(res, peewee.ModelSelect):
-            return list(res)
-        return res
 
 
 class StarModel(BaseModel):
     id: int
     name: str
-
-    class Config:
-        orm_mode = True
-        getter_dict = PeeweeGetterDict
 
 
 class FactoryModel(BaseModel):
@@ -42,6 +28,3 @@ class PlanetModel(BaseModel):
     trade: List[ProductionModel]
     factories: List[FactoryModel]
 
-    class Config:
-        orm_mode = True
-        getter_dict = PeeweeGetterDict

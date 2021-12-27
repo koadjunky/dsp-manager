@@ -7,3 +7,4 @@ class Config:
 
 
 config = Config()
+#TODO: put config in database

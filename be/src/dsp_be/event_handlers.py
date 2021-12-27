@@ -3,28 +3,30 @@ from typing import Callable
 from fastapi import FastAPI
 from loguru import logger
 
+from dsp_be.logic.star import Star
+from dsp_be.logic.planet import Planet
+from dsp_be.logic.factory import Factory
+from dsp_be.motor import FactoryModel, PlanetModel, StarModel
 
+
+# TODO: Tests for orbital collectors
 def start_app_handler(app: FastAPI) -> Callable:
-    def startup() -> None:
+    async def startup() -> None:
         logger.info("Running app start handler.")
-        from dsp_be.logic.star import Star
-        from dsp_be.logic.planet import Planet
-        from dsp_be.logic.factory import Factory
-        from dsp_be.logic import test_database, close_database
-        test_database([Star, Planet, Factory])
-        sun, _ = Star.get_or_create(name='Sun', exports="circuit_board,copper_ingot", imports="iron_ore")
-        earth, _ = Planet.get_or_create(name='Earth', star=sun, exports="processor", imports="")
-        Factory.get_or_create(name="Processor #1", planet=earth, machine_name="assembler2", recipe_name="processor", count=3)
-        Factory.get_or_create(name="Circuit Board #1", planet=earth, machine_name="assembler2", recipe_name="circuit_board", count=1)
-        Factory.get_or_create(name="Iron Ingot #1", planet=earth, machine_name="arc_smelter", recipe_name="iron_ingot", count=2)
-        Factory.get_or_create(name="Iron Mine #1", planet=earth, machine_name="mine", recipe_name="iron_ore_vein", count=4)
-        Factory.get_or_create(name="Microcrystalline #1", planet=earth, machine_name="assembler2", recipe_name="microcrystalline_component", count=4)
-        Factory.get_or_create(name="Silicon #1", planet=earth, machine_name="arc_smelter", recipe_name="high_purity_silicon", count=8)
-        Factory.get_or_create(name="Silicon Mine #1", planet=earth, machine_name="mine", recipe_name="silicon_ore_vein", count=16)
-        Factory.get_or_create(name="Copper Ingot #1", planet=earth, machine_name="arc_smelter", recipe_name="copper_ingot", count=3)
-        Factory.get_or_create(name="Copper Mine #1", planet=earth, machine_name="mine", recipe_name="copper_ore_vein", count=6)
+        sun = Star(name='Sun', exports=["circuit_board", "copper_ingot"], imports=["iron_ore"])
+        await StarModel.update(sun)
+        earth = Planet(name='Sun 3', resources={}, exports=["processor"], imports=[], star=sun)
+        await PlanetModel.update(earth)
+        await FactoryModel.update(Factory(name="Processor #1", machine_name="assembler2", recipe_name="processor", count=3, planet=earth))
+        await FactoryModel.update(Factory(name="Circuit Board #1", machine_name="assembler2", recipe_name="circuit_board", count=1, planet=earth))
+        await FactoryModel.update(Factory(name="Iron Ingot #1", machine_name="arc_smelter", recipe_name="iron_ingot", count=2, planet=earth))
+        await FactoryModel.update(Factory(name="Iron Mine #1", machine_name="mine", recipe_name="iron_ore_vein", count=4, planet=earth))
+        await FactoryModel.update(Factory(name="Microcrystalline #1", machine_name="assembler2", recipe_name="microcrystalline_component", count=4, planet=earth))
+        await FactoryModel.update(Factory(name="Silicon #1", machine_name="arc_smelter", recipe_name="high_purity_silicon", count=8, planet=earth))
+        await FactoryModel.update(Factory(name="Silicon Mine #1", machine_name="mine", recipe_name="silicon_ore_vein", count=16, planet=earth))
+        await FactoryModel.update(Factory(name="Copper Ingot #1", machine_name="arc_smelter", recipe_name="copper_ingot", count=3, planet=earth))
+        await FactoryModel.update(Factory(name="Copper Mine #1", machine_name="mine", recipe_name="copper_ore_vein", count=6, planet=earth))
         print(earth.trade())
-        close_database()
     return startup
 
 

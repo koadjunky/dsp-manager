@@ -1,9 +1,7 @@
 from typing import List
 
-from loguru import logger
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter
 
-from dsp_be.logic import get_db
 from dsp_be.logic.star import Star
 from dsp_be.logic.planet import Planet
 from dsp_be.routes.models import StarModel, PlanetModel, FactoryModel, ProductionModel
@@ -14,7 +12,6 @@ router = APIRouter()
 @router.get(
     "/api/stars",
     response_model=List[StarModel],
-    dependencies=[Depends(get_db)],
     summary="Return list of all recorded star systems.",
     description="Return list of all recorded star systems.",
     response_description="Return list of all recorded star systems."
@@ -27,7 +24,6 @@ def get_stars() -> List[Star]:
 @router.get(
     "/api/stars/{star_id}",
     response_model=List[PlanetModel],
-    dependencies=[Depends(get_db)],
     summary="Return list of all recorded planets in star sysem.",
     description="Return list of all recorded star systems.",
     response_description="Return list of all recorded star systems."
@@ -40,7 +36,6 @@ def get_planets(star_id:int) -> List[Planet]:
 @router.get(
     "/api/stars/{star_id}/planets/{planet_id}",
     response_model=PlanetModel,
-    dependencies=[Depends(get_db)],
     summary="Return planet with all factories.",
     description="Return planet with all factories.",
     response_description="Return planet with all factories.",

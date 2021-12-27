@@ -1,15 +1,15 @@
-from dataclasses import Field
+from dataclasses import dataclass, field
+from typing import List
 
-from peewee import CharField
-
-from dsp_be.logic import DspModel
 from dsp_be.logic.stack import Stack
 
 
-class Star(DspModel):
-    name: Field = CharField()
-    imports: Field = CharField(default="")
-    exports: Field = CharField(default="")
+@dataclass
+class Star:
+    name: str
+    imports: List[str]
+    exports: List[str]
+    planets: List['Planet'] = field(default_factory=list)
 
     def production(self) -> Stack:
         result = Stack()
@@ -19,17 +19,9 @@ class Star(DspModel):
 
     def trade(self) -> Stack:
         result = Stack()
-        imports_list = self.get_imports()
-        exports_list = self.get_exports()
         for k, v in self.production():
-            if k in imports_list and v < 0:
+            if k in self.imports and v < 0:
                 result.add(k, v)
-            elif k in exports_list and v > 0:
+            elif k in self.exports and v > 0:
                 result.add(k, v)
         return result
-
-    def get_imports(self):
-        return [x for x in self.imports.split(",") if x]
-
-    def get_exports(self):
-        return [x for x in self.exports.split(",") if x]

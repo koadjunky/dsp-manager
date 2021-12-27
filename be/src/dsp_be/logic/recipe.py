@@ -61,9 +61,9 @@ class CollectorRecipe(Recipe):
     machine: str = "orbital_collector"
 
     def production(self, count: int, machine: Machine, planet: Planet) -> Stack:
-        fire_ice = 8 * count * planet.fire_ice * (1 + 0.1 * config.veins_utilization)
-        hydrogen = 8 * count * planet.hydrogen * (1 + 0.1 * config.veins_utilization)
-        deuterium = 8 * count * planet.deuterium * (1 + 0.1 * config.veins_utilization)
+        fire_ice = 8 * count * planet.resources.get("fire_ice", 0.0) * (1 + 0.1 * config.veins_utilization)
+        hydrogen = 8 * count * planet.resources.get("hydrogen", 0.0) * (1 + 0.1 * config.veins_utilization)
+        deuterium = 8 * count * planet.resources.get("deuterium", 0.0) * (1 + 0.1 * config.veins_utilization)
         power = 30 * count
         fire_ice_power = 4.8 * fire_ice
         hydrogen_power = 9.0 * hydrogen
@@ -885,5 +885,5 @@ recipes = load_recipes()
 
 if __name__ == '__main__':
     from dsp_be.logic.machine import machines
-    planet = Planet(fire_ice=0.5, hydrogen=0.25, deuterium=0.0)
+    planet = Planet(name="Earth", resources={"fire_ice": 0.5, "hydrogen": 0.25, "deuterium": 0.0}, exports=[], imports=[], star=None)
     print(recipes.get("orbital_collector").production(40, machines["orbital_collector"], planet))
