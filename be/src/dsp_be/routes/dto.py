@@ -22,6 +22,6 @@ class ProductionDto(BaseModel):
 
 class PlanetDto(BaseModel):
     name: str
-    trade: List[ProductionDto]
-    factories: List[FactoryDto]
+#    trade: List[ProductionDto]
+#    factories: List[FactoryDto]
 

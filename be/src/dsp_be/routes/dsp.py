@@ -4,7 +4,7 @@ from fastapi import APIRouter
 
 from dsp_be.logic.star import Star
 from dsp_be.logic.planet import Planet
-from dsp_be.motor import StarModel
+from dsp_be.motor import StarModel, PlanetModel, FactoryModel
 from dsp_be.routes.dto import StarDto, PlanetDto, FactoryDto, ProductionDto
 
 router = APIRouter()
@@ -22,14 +22,17 @@ async def get_stars() -> List[Star]:
 
 
 @router.get(
-    "/api/stars/{star_id}",
+    "/api/stars/{star_name}",
     response_model=List[PlanetDto],
     summary="Return list of all recorded planets in star sysem.",
     description="Return list of all recorded star systems.",
     response_description="Return list of all recorded star systems."
 )
-def get_planets(star_id:int) -> List[Planet]:
-    planets = list(Planet.select().where(Planet.star_id == star_id))
+async def get_planets(star_name: str) -> List[Planet]:
+    star = (await StarModel.find(star_name)).to_logic()
+    planets = [model.to_logic(star) for model in await PlanetModel.list(star_name)]
+    for planet in planets:
+        _ = [model.to_logic(planet) for model in await FactoryModel.list(planet.name)]
     return planets
 
 

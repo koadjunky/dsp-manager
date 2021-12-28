@@ -50,6 +50,27 @@ class FactoryModel:
         )
         return model
 
+    def to_logic(self, planet: Planet):
+        factory = Factory(
+            name=self.name,
+            recipe_name=self.recipe_name,
+            machine_name=self.machine_name,
+            count=self.count,
+            planet=planet
+        )
+        return factory
+
+    @classmethod
+    def from_dict(cls, document: Dict[str, Any]) -> 'FactoryModel':
+        model = FactoryModel(
+            name=document["name"],
+            planet_name=document["planet_name"],
+            recipe_name=document["recipe_name"],
+            machine_name=document["machine_name"],
+            count=document["count"],
+        )
+        return model
+
     @classmethod
     async def update(cls, factory: Factory) -> None:
         model = FactoryModel.from_logic(factory)
@@ -58,6 +79,11 @@ class FactoryModel:
             await db.factory.update_one({"_id": _id}, {"$set": jsonable_encoder(model)})
         else:
             await db.factory.insert_one(jsonable_encoder(model))
+
+    @classmethod
+    async def list(cls, planet_name: str) -> List['FactoryModel']:
+        return [FactoryModel.from_dict(doc) async for doc in db.factory.find({"planet_name": planet_name})]
+
 
 
 @dataclass
@@ -79,6 +105,27 @@ class PlanetModel:
         )
         return model
 
+    def to_logic(self, star: Star) -> Planet:
+        planet = Planet(
+            name=self.name,
+            resources=self.resources.copy(),
+            imports=self.imports.copy(),
+            exports=self.exports.copy(),
+            star=star,
+        )
+        return planet
+
+    @classmethod
+    def from_dict(cls, document: Dict[str, Any]) -> 'PlanetModel':
+        model = PlanetModel(
+            name=document["name"],
+            star_name=document["star_name"],
+            resources=document["resources"].copy(),
+            imports=document["imports"].copy(),
+            exports=document["exports"].copy(),
+        )
+        return model
+
     @classmethod
     async def update(cls, planet: Planet) -> None:
         model = PlanetModel.from_logic(planet)
@@ -87,6 +134,10 @@ class PlanetModel:
             await db.planet.update_one({"_id": _id}, {"$set": jsonable_encoder(model)})
         else:
             await db.planet.insert_one(jsonable_encoder(model))
+
+    @classmethod
+    async def list(cls, star_name: str) -> List['PlanetModel']:
+        return [PlanetModel.from_dict(doc) async for doc in db.planet.find({"star_name": star_name})]
 
 
 @dataclass
@@ -113,7 +164,8 @@ class StarModel:
         return star
 
     @classmethod
-    def from_dict(cls, document: Dict[str, Any]):
+    def from_dict(cls, document: Dict[str, Any]) -> 'StarModel':
+        logger.info(document)
         model = StarModel(
             name=document["name"],
             imports=document["imports"].copy(),
@@ -133,3 +185,8 @@ class StarModel:
     @classmethod
     async def list(cls) -> List['StarModel']:
         return [StarModel.from_dict(doc) async for doc in db.star.find()]
+
+    @classmethod
+    async def find(cls, star_name) -> 'StarModel':
+        doc = await db.star.find_one({"star_name": star_name})
+        return StarModel.from_dict(doc)
