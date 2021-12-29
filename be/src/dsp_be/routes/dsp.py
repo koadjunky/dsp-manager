@@ -28,12 +28,32 @@ async def get_stars() -> List[Star]:
     description="Return list of all recorded star systems.",
     response_description="Return list of all recorded star systems."
 )
-async def get_planets(star_name: str) -> List[Planet]:
+async def get_planets(star_name: str) -> List[PlanetDto]:
     star = (await StarModel.find(star_name)).to_logic()
     planets = [model.to_logic(star) for model in await PlanetModel.list(star_name)]
+    # TODO: Refactor this
+    result = []
     for planet in planets:
         _ = [model.to_logic(planet) for model in await FactoryModel.list(planet.name)]
-    return planets
+        trade = [ProductionDto(name=name, value=value) for name, value in planet.trade().to_dict().items()]
+        factories = []
+        for factory in planet.factories:
+            production = [ProductionDto(name=name, value=value) for name, value in planet.trade().to_dict().items()]
+            factory_dto = FactoryDto(
+                name=factory.name,
+                recipe=factory.recipe_name,
+                machine=factory.machine_name,
+                count=factory.count,
+                production=production,
+            )
+            factories.append(factory_dto)
+        dto = PlanetDto(
+            name=planet.name,
+            trade=trade,
+            factories=factories
+        )
+        result.append(dto)
+    return result
 
 
 @router.get(

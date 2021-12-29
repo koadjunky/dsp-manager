@@ -165,7 +165,6 @@ class StarModel:
 
     @classmethod
     def from_dict(cls, document: Dict[str, Any]) -> 'StarModel':
-        logger.info(document)
         model = StarModel(
             name=document["name"],
             imports=document["imports"].copy(),
@@ -188,5 +187,5 @@ class StarModel:
 
     @classmethod
     async def find(cls, star_name) -> 'StarModel':
-        doc = await db.star.find_one({"star_name": star_name})
+        doc = await db.star.find_one({"name": star_name})
         return StarModel.from_dict(doc)
