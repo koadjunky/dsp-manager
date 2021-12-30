@@ -10,11 +10,6 @@ class StarDto(BaseModel):
     name: str
 
 
-class ProductionDto(BaseModel):
-    name: str
-    value: float
-
-
 class FactoryDto(BaseModel):
     name: str
     recipe: str

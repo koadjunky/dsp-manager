@@ -1,10 +1,9 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Dict, List, Any
 
 import motor.motor_asyncio
 from bson import ObjectId
 from fastapi.encoders import jsonable_encoder
-from loguru import logger
 
 from dsp_be.logic.factory import Factory
 from dsp_be.logic.planet import Planet
@@ -138,6 +137,11 @@ class PlanetModel:
     @classmethod
     async def list(cls, star_name: str) -> List['PlanetModel']:
         return [PlanetModel.from_dict(doc) async for doc in db.planet.find({"star_name": star_name})]
+
+    @classmethod
+    async def find(cls, planet_name) -> 'PlanetModel':
+        doc = await db.planet.find_one({"name": planet_name})
+        return PlanetModel.from_dict(doc)
 
 
 @dataclass
