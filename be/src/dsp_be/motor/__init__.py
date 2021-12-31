@@ -5,6 +5,7 @@ import motor.motor_asyncio
 from bson import ObjectId
 from fastapi.encoders import jsonable_encoder
 
+from dsp_be.logic.config import Config
 from dsp_be.logic.factory import Factory
 from dsp_be.logic.planet import Planet
 from dsp_be.logic.star import Star
@@ -49,13 +50,14 @@ class FactoryModel:
         )
         return model
 
-    def to_logic(self, planet: Planet):
+    def to_logic(self, planet: Planet, config: Config):
         factory = Factory(
             name=self.name,
             recipe_name=self.recipe_name,
             machine_name=self.machine_name,
             count=self.count,
-            planet=planet
+            planet=planet,
+            config=config,
         )
         return factory
 
@@ -190,6 +192,45 @@ class StarModel:
         return [StarModel.from_dict(doc) async for doc in db.star.find()]
 
     @classmethod
-    async def find(cls, star_name) -> 'StarModel':
+    async def find(cls, star_name: str) -> 'StarModel':
         doc = await db.star.find_one({"name": star_name})
         return StarModel.from_dict(doc)
+
+
+@dataclass
+class ConfigModel:
+    veins_utilization: int
+
+    @classmethod
+    def from_logic(cls, config: Config) -> 'ConfigModel':
+        model = ConfigModel(
+            veins_utilization=config.veins_utilization
+        )
+        return model
+
+    def to_logic(self) -> Config:
+        config = Config(
+            veins_utilization=self.veins_utilization
+        )
+        return config
+
+    @classmethod
+    def from_dict(cls, document: Dict[str, Any]) -> 'ConfigModel':
+        model = ConfigModel(
+            veins_utilization=document["veins_utilization"]
+        )
+        return model
+
+    @classmethod
+    async def update(cls, config: Config) -> None:
+        model = ConfigModel.from_logic(config)
+        if (model_db := await db.config.find_one()) is not None:
+            _id = model_db["_id"]
+            await db.config.update_one({"_id": _id}, {"$set": jsonable_encoder(model)})
+        else:
+            await db.config.insert_one(jsonable_encoder(model))
+
+    @classmethod
+    async def find(cls) -> 'ConfigModel':
+        doc = await db.config.find_one()
+        return ConfigModel.from_dict(doc)

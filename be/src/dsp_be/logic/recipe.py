@@ -6,7 +6,7 @@ from typing import Dict
 from dsp_be.logic.machine import Machine
 from dsp_be.logic.planet import Planet
 from dsp_be.logic.stack import Stack
-from dsp_be.logic.config import config
+from dsp_be.logic.config import Config
 
 
 @dataclass
@@ -15,7 +15,7 @@ class Recipe(ABC):
     machine: str
 
     @abstractmethod
-    def production(self, count: int, machine: Machine, planet: Planet) -> Stack:
+    def production(self, count: int, machine: Machine, planet: Planet, config: Config) -> Stack:
         pass
 
 
@@ -24,7 +24,7 @@ class FractinatorRecipe(Recipe):
     name: str = "fractinator"
     machine: str = "fractinator"
 
-    def production(self, count: int, machine: Machine, planet: Planet) -> Stack:
+    def production(self, count: int, machine: Machine, planet: Planet, config: Config) -> Stack:
         stack = Stack()
         stack.add("deuterium", machine.speed * (1.0 - (0.99 ** count)))
         stack.add("hydrogen", -machine.speed * (1.0 - (0.99 ** count)))
@@ -37,7 +37,7 @@ class PumpRecipe(Recipe):
     product: str = "water"
     machine: str = "water_pump"
 
-    def production(self, count: int, machine: Machine, planet: Planet) -> Stack:
+    def production(self, count: int, machine: Machine, planet: Planet, config: Config) -> Stack:
         stack = Stack()
         stack.add(self.product, 5.0 / 6.0 * count * (1 + 0.1 * config.veins_utilization))
         return stack
@@ -49,7 +49,7 @@ class OilRecipe(Recipe):
     product: str = "oil_extractor"
     machine: str = "oil_extractor"
 
-    def production(self, count: int, machine: Machine, planet: Planet) -> Stack:
+    def production(self, count: int, machine: Machine, planet: Planet, config: Config) -> Stack:
         stack = Stack()
         stack.add("crude_oil", count * machine.speed * (1 + 0.1 * config.veins_utilization))
         return stack
@@ -60,7 +60,7 @@ class CollectorRecipe(Recipe):
     name: str = "orbital_collector"
     machine: str = "orbital_collector"
 
-    def production(self, count: int, machine: Machine, planet: Planet) -> Stack:
+    def production(self, count: int, machine: Machine, planet: Planet, config: Config) -> Stack:
         fire_ice = 8 * count * planet.resources.get("fire_ice", 0.0) * (1 + 0.1 * config.veins_utilization)
         hydrogen = 8 * count * planet.resources.get("hydrogen", 0.0) * (1 + 0.1 * config.veins_utilization)
         deuterium = 8 * count * planet.resources.get("deuterium", 0.0) * (1 + 0.1 * config.veins_utilization)
@@ -85,7 +85,7 @@ class MineRecipe(Recipe):
     product: str = "coal"
     machine: str = "mine"
 
-    def production(self, count: int, machine: Machine, planet: Planet) -> Stack:
+    def production(self, count: int, machine: Machine, planet: Planet, config: Config) -> Stack:
         stack = Stack()
         stack.add(self.product, 0.5 * count * (1 + 0.1 * config.veins_utilization))
         return stack
@@ -104,7 +104,7 @@ class FactoryRecipe(Recipe):
     raws: Dict[str, int]
     time: float
 
-    def production(self, count: int, machine: Machine, planet: Planet) -> Stack:
+    def production(self, count: int, machine: Machine, planet: Planet, config: Config) -> Stack:
         stack = Stack()
         for name, value in self.products.items():
             stack.add(name, value * count * machine.speed / self.time)
