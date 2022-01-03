@@ -885,5 +885,8 @@ recipes = load_recipes()
 
 if __name__ == '__main__':
     from dsp_be.logic.machine import machines
-    planet = Planet(name="Earth", resources={"fire_ice": 0.5, "hydrogen": 0.25, "deuterium": 0.0}, exports=[], imports=[], star=None)
-    print(recipes.get("orbital_collector").production(40, machines["orbital_collector"], planet))
+    from dsp_be.logic.factory import Factory
+    config = Config(veins_utilization=2)
+    planet = Planet(name="Jupiter", resources={"fire_ice": 0.04, "hydrogen": 0.85, "deuterium": 0.0}, exports=[], imports=[], star=None)
+    factory = Factory(name="Collector #1", machine_name="orbital_collector", recipe_name="orbital_collector", count=40, planet=planet, config=config)
+    print("Fire ice:9.24, Hydrogen:196.4", factory.production())

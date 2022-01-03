@@ -12,12 +12,12 @@ def jupiter():
 
 
 @pytest.fixture
-def veins_utilization_zero():
+def veins_utilization_two():
     return Config(veins_utilization=2)
 
 
 @pytest.fixture
-def orbital_collector(jupiter, veins_utilization_zero):
+def orbital_collector(jupiter, veins_utilization_two):
     return Factory(name="Collector #1", machine_name="orbital_collector", recipe_name="orbital_collector", count=40, planet=jupiter, config=veins_utilization_zero)
 
 
