@@ -1,11 +1,11 @@
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional
+import weakref
 
 from dsp_be.logic.stack import Stack
 from dsp_be.logic.star import Star
 
 
-# TODO: Weak refs
 @dataclass
 class Planet:
     name: str
@@ -43,6 +43,6 @@ class Planet:
     def star(self, star: Optional[Star]) -> None:
         if self._star is not None:
             self._star.planets.remove(self)
-        self._star = star
+        self._star = weakref.proxy(star)
         if self._star is not None:
             self._star.planets.append(self)

@@ -10,7 +10,6 @@ from dsp_be.logic.config import Config
 from dsp_be.motor import FactoryModel, PlanetModel, StarModel, ConfigModel
 
 
-# TODO: Tests for orbital collectors
 def start_app_handler(app: FastAPI) -> Callable:
     async def startup() -> None:
         logger.info("Running app start handler.")
