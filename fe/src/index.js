@@ -34,7 +34,7 @@ class Planet extends React.Component {
         this.state = {name: "", trade: [], factories: []};
     }
     componentDidMount() {
-        fetch('/dsp/api/stars/1/planets/1')
+        fetch('/dsp/api/stars/Sun/planets/Sun 3')
         .then(res => res.json())
         .then((data) => {
             this.setState(data);
@@ -51,9 +51,13 @@ class Planet extends React.Component {
                 <div className="system">
                     <div className="name">{this.state.name}</div>
                     <div className="title">Imports</div>
-                        {this.state.trade.map(item => item.value < 0 ? <div>{item.name}:{item.value}</div> : "")}
+                        {Object.entries(this.state.trade).map(([key, value], index) => {
+                           return (value < 0 ? <div>{key}: {value}</div> : "");
+                        })}
                     <div className="title">Exports</div>
-                        {this.state.trade.map(item => item.value > 0 ? <div>{item.name}:{item.value}</div> : "")}
+                        {Object.entries(this.state.trade).map(([key, value], index) => {
+                            return (value > 0 ? <div>{key}: {value}</div> : "");
+                        })}
                 </div>
                 <div className='wrapper'>
                     {this.state.factories.map(item => <Factory factory={item}/> )}
@@ -72,7 +76,7 @@ class Factory extends React.Component {
                 <div>Machine: {this.props.factory.machine}</div>
                 <div>Count: {this.props.factory.count}</div>
                 <div>Production:</div>
-                {Object.entries(this.props.factory.production).map((key, value) => {
+                {Object.entries(this.props.factory.production).map(([key, value], index) => {
                     return (<div>{key}: {value}</div>);
                 })}
             </div>
