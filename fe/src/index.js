@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import "./index.css";
 
 
@@ -27,7 +28,7 @@ class PlanetView extends React.Component {
         this.state = {name: "", trade: [], factories: []};
     }
     componentDidMount() {
-        fetch('/dsp/api/stars/Sun/planets/Sun 3')
+        fetch(`/dsp/api/stars/${this.props.star_name}/planets/${this.props.planet_name}`)
         .then(res => res.json())
         .then((data) => {
             this.setState(data);
@@ -60,6 +61,11 @@ class PlanetView extends React.Component {
     }
 }
 
+function PlanetViewWrapper() {
+    const { star_name, planet_name } = useParams();
+    return (<PlanetView star_name={star_name} planet_name={planet_name} /> );
+}
+
 class Planet extends React.Component {
     render() {
         return (
@@ -84,7 +90,7 @@ class StarView extends React.Component {
         this.state = {name: "", trade: [], planets: []};
     }
     componentDidMount() {
-        fetch('/dsp/api/stars/Sun')
+        fetch(`/dsp/api/stars/${this.props.star_name}`)
         .then(res => res.json())
         .then((data) => {
             this.setState(data);
@@ -114,6 +120,11 @@ class StarView extends React.Component {
     }
 }
 
+function StarViewWrapper() {
+    const { star_name } = useParams();
+    return (<StarView star_name={star_name} /> );
+}
+
 class SystemView extends React.Component {
     constructor(props) {
         super(props);
@@ -126,7 +137,7 @@ class SystemView extends React.Component {
             this.setState(data);
         })
         .catch(console.log);
-        console.log(this.state.stars);
+        console.log(this.state);
     }
     render() {
         return (
@@ -146,8 +157,8 @@ ReactDOM.render(
         <Router>
             <Routes>
                 <Route path="/" element={<SystemView /> } />
-                <Route path="/star/:starName" element={ <StarView /> } />
-                <Route path="/star/:starName/planet/:planetName" element={ <PlanetView /> } />
+                <Route path="/star/:star_name" element={ <StarViewWrapper /> } />
+                <Route path="/star/:star_name/planet/:planet_name" element={ <PlanetViewWrapper /> } />
             </Routes>
         </Router>
     </div>,
