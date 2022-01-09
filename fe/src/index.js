@@ -70,12 +70,12 @@ class Planet extends React.Component {
     render() {
         return (
             <div>
-                <div>Name: {this.props.planet.name}</div>
-                <div>Imports:</div>
+                <div className="name">Name: {this.props.planet.name}</div>
+                <div className="title">Imports:</div>
                     {Object.entries(this.props.planet.trade).map(([key, value], index) => {
                         return (value < 0 ? <div>{key}: {value}</div> : "");
                     })}
-                <div>Exports:</div>
+                <div className="title">Exports:</div>
                     {Object.entries(this.props.planet.trade).map(([key, value], index) => {
                         return (value > 0 ? <div>{key}: {value}</div> : "");
                     })}
@@ -101,18 +101,18 @@ class StarView extends React.Component {
     render() {
         return (
             <div>
-                <div>
-                    <div>{this.state.name}</div>
-                    <div>Imports</div>
+                <div className="system">
+                    <div className="name">{this.state.name}</div>
+                    <div className="title">Imports</div>
                         {Object.entries(this.state.trade).map(([key, value], index) => {
                             return (value < 0 ? <div>{key}: {value}</div> : "");
                         })}
-                    <div>Exports</div>
+                    <div className="title">Exports</div>
                         {Object.entries(this.state.trade).map(([key, value], index) => {
                             return (value > 0 ? <div>{key}: {value}</div> : "");
                         })}
                 </div>
-                <div>
+                <div className="wrapper">
                     {this.state.planets.map(item => <Planet planet={item}/> )}
                 </div>
             </div>
