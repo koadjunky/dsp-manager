@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import "./index.css";
 
 
@@ -32,9 +32,9 @@ class PlanetView extends React.Component {
         .then(res => res.json())
         .then((data) => {
             this.setState(data);
+            console.log(this.state);
         })
         .catch(console.log);
-        console.log(this.state);
     }
     renderFactory(i) {
         return <Factory factory={this.state.factories[i]} />;
@@ -42,6 +42,7 @@ class PlanetView extends React.Component {
     render() {
         return (
             <div>
+                <Link to={`/stars/${this.props.star_name}`}>Back to {this.props.star_name}</Link>
                 <div className="system">
                     <div className="name">{this.state.name}</div>
                     <div className="title">Imports</div>
@@ -69,17 +70,19 @@ function PlanetViewWrapper() {
 class Planet extends React.Component {
     render() {
         return (
-            <div>
-                <div className="name">Name: {this.props.planet.name}</div>
-                <div className="title">Imports:</div>
-                    {Object.entries(this.props.planet.trade).map(([key, value], index) => {
-                        return (value < 0 ? <div>{key}: {value}</div> : "");
-                    })}
-                <div className="title">Exports:</div>
-                    {Object.entries(this.props.planet.trade).map(([key, value], index) => {
-                        return (value > 0 ? <div>{key}: {value}</div> : "");
-                    })}
-            </div>
+            <Link to={`/stars/${this.props.star_name}/planets/${this.props.planet.name}`}>
+                <div>
+                    <div className="name">Name: {this.props.planet.name}</div>
+                    <div className="title">Imports:</div>
+                        {Object.entries(this.props.planet.trade).map(([key, value], index) => {
+                            return (value < 0 ? <div>{key}: {value}</div> : "");
+                        })}
+                    <div className="title">Exports:</div>
+                        {Object.entries(this.props.planet.trade).map(([key, value], index) => {
+                            return (value > 0 ? <div>{key}: {value}</div> : "");
+                        })}
+                </div>
+            </Link>
         );
     }
 }
@@ -94,13 +97,14 @@ class StarView extends React.Component {
         .then(res => res.json())
         .then((data) => {
             this.setState(data);
+            console.log(this.state);
         })
         .catch(console.log);
-        console.log(this.state);
     }
     render() {
         return (
             <div>
+                <Link to={'/'}>Back to System</Link>
                 <div className="system">
                     <div className="name">{this.state.name}</div>
                     <div className="title">Imports</div>
@@ -113,7 +117,7 @@ class StarView extends React.Component {
                         })}
                 </div>
                 <div className="wrapper">
-                    {this.state.planets.map(item => <Planet planet={item}/> )}
+                    {this.state.planets.map(item => <Planet key={item.name} star_name={this.props.star_name} planet={item}/> )}
                 </div>
             </div>
         );
@@ -125,26 +129,44 @@ function StarViewWrapper() {
     return (<StarView star_name={star_name} /> );
 }
 
+class Star extends React.Component {
+    render() {
+        return (
+            <Link to={`/stars/${this.props.star.name}`}>
+                <div>
+                    <div className="name">{this.props.star.name}</div>
+                    <div className="title">Imports:</div>
+                        {Object.entries(this.props.star.trade).map(([key, value], index) => {
+                            return (value < 0 ? <div>{key}: {value}</div> : "");
+                        })}
+                    <div className="title">Exports:</div>
+                        {Object.entries(this.props.star.trade).map(([key, value], index) => {
+                            return (value > 0 ? <div>{key}: {value}</div> : "");
+                        })}
+                </div>
+            </Link>
+        );
+    }
+}
+
 class SystemView extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {stars: [{'name': 'Unknown'}]};
+        this.state = {stars: [{name: 'Unknown', trade: [], planets: []}]};
     }
     componentDidMount() {
         fetch('/dsp/api/stars')
         .then(res => res.json())
         .then((data) => {
             this.setState(data);
+            console.log(this.state);
         })
         .catch(console.log);
-        console.log(this.state);
     }
     render() {
         return (
-            <div className="system">
-                <div className="name">{this.state.stars[0].name}</div>
-                <div className="title">Imports</div>
-                <div className="title">Exports</div>
+            <div className="wrapper">
+                {this.state.stars.map(item => <Star key={item.name} star={item}/>)}
             </div>
         )
     }
@@ -157,8 +179,8 @@ ReactDOM.render(
         <Router>
             <Routes>
                 <Route path="/" element={<SystemView /> } />
-                <Route path="/star/:star_name" element={ <StarViewWrapper /> } />
-                <Route path="/star/:star_name/planet/:planet_name" element={ <PlanetViewWrapper /> } />
+                <Route path="/stars/:star_name" element={ <StarViewWrapper /> } />
+                <Route path="/stars/:star_name/planets/:planet_name" element={ <PlanetViewWrapper /> } />
             </Routes>
         </Router>
     </div>,
