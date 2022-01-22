@@ -884,7 +884,6 @@ recipes = load_recipes()
 
 
 if __name__ == '__main__':
-    from dsp_be.logic.machine import machines
     from dsp_be.logic.factory import Factory
     config = Config(veins_utilization=2)
     planet = Planet(name="Jupiter", resources={"fire_ice": 0.04, "hydrogen": 0.85, "deuterium": 0.0}, exports=[], imports=[], star=None)
