@@ -1,3 +1,4 @@
+import uuid
 from dataclasses import dataclass, field
 from typing import List
 
@@ -9,6 +10,7 @@ class Star:
     name: str
     imports: List[str]
     exports: List[str]
+    id: str = field(default_factory=lambda: uuid.uuid4().hex)
     planets: List['Planet'] = field(default_factory=list)
 
     def production(self) -> Stack:

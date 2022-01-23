@@ -1,3 +1,4 @@
+import uuid
 from dataclasses import dataclass, field
 from typing import Optional
 import weakref
@@ -17,6 +18,7 @@ class Factory:
     count: int
     config: Config
     planet: Optional[Planet]
+    id: str = field(default_factory=lambda: uuid.uuid4().hex)
     _planet: Planet = field(init=False, repr=False, default=None)
 
     def production(self) -> Stack:
@@ -34,7 +36,7 @@ class Factory:
     def planet(self, planet: Optional[Planet]) -> None:
         if self._planet is not None:
             self._planet.factories.remove(self)
-        self._planet = weakref.proxy(planet)
+        self._planet = weakref.proxy(planet) if planet else None
         if self._planet is not None:
             self._planet.factories.append(self)
 

@@ -1,3 +1,4 @@
+import uuid
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 import weakref
@@ -13,6 +14,7 @@ class Planet:
     imports: List[str]
     exports: List[str]
     star: Optional[Star]
+    id: str = field(default_factory=lambda: uuid.uuid4().hex)
     _star: Star = field(init=False, repr=False, default=None)
     factories: List['Factory'] = field(default_factory=list)
 
@@ -43,6 +45,6 @@ class Planet:
     def star(self, star: Optional[Star]) -> None:
         if self._star is not None:
             self._star.planets.remove(self)
-        self._star = weakref.proxy(star)
+        self._star = weakref.proxy(star) if star else None
         if self._star is not None:
             self._star.planets.append(self)

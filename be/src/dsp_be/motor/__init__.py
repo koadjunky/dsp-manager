@@ -33,6 +33,7 @@ class PyObjectId(ObjectId):
 
 @dataclass
 class FactoryModel:
+    id: str
     name: str
     planet_name: str
     recipe_name: str
@@ -42,6 +43,7 @@ class FactoryModel:
     @classmethod
     def from_logic(cls, factory: Factory) -> 'FactoryModel':
         model = FactoryModel(
+            id=factory.id,
             planet_name=factory.planet_name,
             name=factory.name,
             recipe_name=factory.recipe_name,
@@ -52,6 +54,7 @@ class FactoryModel:
 
     def to_logic(self, planet: Planet, config: Config):
         factory = Factory(
+            id=self.id,
             name=self.name,
             recipe_name=self.recipe_name,
             machine_name=self.machine_name,
@@ -64,6 +67,7 @@ class FactoryModel:
     @classmethod
     def from_dict(cls, document: Dict[str, Any]) -> 'FactoryModel':
         model = FactoryModel(
+            id=document["id"],
             name=document["name"],
             planet_name=document["planet_name"],
             recipe_name=document["recipe_name"],
@@ -89,6 +93,7 @@ class FactoryModel:
 
 @dataclass
 class PlanetModel:
+    id: str
     name: str
     star_name: str
     resources: Dict[str, float]
@@ -98,6 +103,7 @@ class PlanetModel:
     @classmethod
     def from_logic(cls, planet: Planet) -> 'PlanetModel':
         model = PlanetModel(
+            id=planet.id,
             name=planet.name,
             star_name=planet.star_name,
             resources=planet.resources.copy(),
@@ -108,6 +114,7 @@ class PlanetModel:
 
     def to_logic(self, star: Star) -> Planet:
         planet = Planet(
+            id=self.id,
             name=self.name,
             resources=self.resources.copy(),
             imports=self.imports.copy(),
@@ -119,6 +126,7 @@ class PlanetModel:
     @classmethod
     def from_dict(cls, document: Dict[str, Any]) -> 'PlanetModel':
         model = PlanetModel(
+            id=document["id"],
             name=document["name"],
             star_name=document["star_name"],
             resources=document["resources"].copy(),
@@ -148,6 +156,7 @@ class PlanetModel:
 
 @dataclass
 class StarModel:
+    id: str
     name: str
     imports: List[str]
     exports: List[str]
@@ -155,6 +164,7 @@ class StarModel:
     @classmethod
     def from_logic(cls, star: Star) -> 'StarModel':
         model = StarModel(
+            id=star.id,
             name=star.name,
             imports=star.imports.copy(),
             exports=star.exports.copy(),
@@ -163,6 +173,7 @@ class StarModel:
 
     def to_logic(self) -> Star:
         star = Star(
+            id=self.id,
             name=self.name,
             imports=self.imports.copy(),
             exports=self.exports.copy(),
@@ -172,6 +183,7 @@ class StarModel:
     @classmethod
     def from_dict(cls, document: Dict[str, Any]) -> 'StarModel':
         model = StarModel(
+            id=document["id"],
             name=document["name"],
             imports=document["imports"].copy(),
             exports=document["exports"].copy(),

@@ -8,6 +8,7 @@ from dsp_be.logic.star import Star
 
 
 class FactoryDto(BaseModel):
+    id: str
     name: str
     recipe: str
     machine: str
@@ -17,6 +18,7 @@ class FactoryDto(BaseModel):
     @classmethod
     def from_logic(cls, factory: Factory):
         dto = FactoryDto(
+            id=factory.id,
             name=factory.name,
             recipe=factory.recipe_name,
             machine=factory.machine_name,
@@ -27,6 +29,7 @@ class FactoryDto(BaseModel):
 
 
 class PlanetDto(BaseModel):
+    id: str
     name: str
     trade: Dict[str, float]
     factories: List[FactoryDto]
@@ -35,6 +38,7 @@ class PlanetDto(BaseModel):
     def from_logic(cls, planet: Planet):
         factories = [FactoryDto.from_logic(factory) for factory in planet.factories]
         dto = PlanetDto(
+            id=planet.id,
             name=planet.name,
             trade=planet.trade().to_dict(),
             factories=factories,
@@ -43,6 +47,7 @@ class PlanetDto(BaseModel):
 
 
 class StarDto(BaseModel):
+    id: str
     name: str
     trade: Dict[str, float]
     planets: List[PlanetDto]
@@ -51,6 +56,7 @@ class StarDto(BaseModel):
     def from_logic(cls, star: Star):
         planets = [PlanetDto.from_logic(planet) for planet in star.planets]
         dto = StarDto(
+            id=star.id,
             name=star.name,
             trade=star.trade().to_dict(),
             planets=planets,

@@ -18,7 +18,7 @@ def veins_utilization_two():
 
 @pytest.fixture
 def orbital_collector(jupiter, veins_utilization_two):
-    return Factory(name="Collector #1", machine_name="orbital_collector", recipe_name="orbital_collector", count=40, planet=jupiter, config=veins_utilization_zero)
+    return Factory(name="Collector #1", machine_name="orbital_collector", recipe_name="orbital_collector", count=40, planet=jupiter, config=veins_utilization_two)
 
 
 def test_orbital_collector(jupiter, orbital_collector):
