@@ -4,12 +4,7 @@ from loguru import logger
 
 from dsp_be.event_handlers import start_app_handler, stop_app_handler
 from dsp_be.routes.router import api_router
-from dsp_be.settings import (
-    APP_SETTINGS,
-    API_PREFIX,
-    DEFAULT_HOST,
-    DEFAULT_HOST_PORT,
-)
+from dsp_be.settings import API_PREFIX, APP_SETTINGS, DEFAULT_HOST, DEFAULT_HOST_PORT
 
 
 async def logging_dependency(request: Request):
@@ -20,9 +15,9 @@ async def logging_dependency(request: Request):
     logger.debug("Headers:")
     for name, value in request.headers.items():
         logger.debug(f"\t{name}: {value}")
-    #form = await request.form()
-    #logger.debug("Body:")
-    #logger.debug(f"\t{form}")
+    # form = await request.form()
+    # logger.debug("Body:")
+    # logger.debug(f"\t{form}")
 
 
 def get_app() -> FastAPI:

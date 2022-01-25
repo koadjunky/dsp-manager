@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, List, Any
+from typing import Any, Dict, List
 
 import motor.motor_asyncio
 from bson import ObjectId
@@ -41,7 +41,7 @@ class FactoryModel:
     count: int
 
     @classmethod
-    def from_logic(cls, factory: Factory) -> 'FactoryModel':
+    def from_logic(cls, factory: Factory) -> "FactoryModel":
         model = FactoryModel(
             id=factory.id,
             planet_name=factory.planet_name,
@@ -65,7 +65,7 @@ class FactoryModel:
         return factory
 
     @classmethod
-    def from_dict(cls, document: Dict[str, Any]) -> 'FactoryModel':
+    def from_dict(cls, document: Dict[str, Any]) -> "FactoryModel":
         model = FactoryModel(
             id=document["id"],
             name=document["name"],
@@ -86,9 +86,11 @@ class FactoryModel:
             await db.factory.insert_one(jsonable_encoder(model))
 
     @classmethod
-    async def list(cls, planet_name: str) -> List['FactoryModel']:
-        return [FactoryModel.from_dict(doc) async for doc in db.factory.find({"planet_name": planet_name})]
-
+    async def list(cls, planet_name: str) -> List["FactoryModel"]:
+        return [
+            FactoryModel.from_dict(doc)
+            async for doc in db.factory.find({"planet_name": planet_name})
+        ]
 
 
 @dataclass
@@ -101,7 +103,7 @@ class PlanetModel:
     exports: List[str]
 
     @classmethod
-    def from_logic(cls, planet: Planet) -> 'PlanetModel':
+    def from_logic(cls, planet: Planet) -> "PlanetModel":
         model = PlanetModel(
             id=planet.id,
             name=planet.name,
@@ -124,7 +126,7 @@ class PlanetModel:
         return planet
 
     @classmethod
-    def from_dict(cls, document: Dict[str, Any]) -> 'PlanetModel':
+    def from_dict(cls, document: Dict[str, Any]) -> "PlanetModel":
         model = PlanetModel(
             id=document["id"],
             name=document["name"],
@@ -145,11 +147,14 @@ class PlanetModel:
             await db.planet.insert_one(jsonable_encoder(model))
 
     @classmethod
-    async def list(cls, star_name: str) -> List['PlanetModel']:
-        return [PlanetModel.from_dict(doc) async for doc in db.planet.find({"star_name": star_name})]
+    async def list(cls, star_name: str) -> List["PlanetModel"]:
+        return [
+            PlanetModel.from_dict(doc)
+            async for doc in db.planet.find({"star_name": star_name})
+        ]
 
     @classmethod
-    async def find(cls, planet_name) -> 'PlanetModel':
+    async def find(cls, planet_name) -> "PlanetModel":
         doc = await db.planet.find_one({"name": planet_name})
         return PlanetModel.from_dict(doc)
 
@@ -162,7 +167,7 @@ class StarModel:
     exports: List[str]
 
     @classmethod
-    def from_logic(cls, star: Star) -> 'StarModel':
+    def from_logic(cls, star: Star) -> "StarModel":
         model = StarModel(
             id=star.id,
             name=star.name,
@@ -181,7 +186,7 @@ class StarModel:
         return star
 
     @classmethod
-    def from_dict(cls, document: Dict[str, Any]) -> 'StarModel':
+    def from_dict(cls, document: Dict[str, Any]) -> "StarModel":
         model = StarModel(
             id=document["id"],
             name=document["name"],
@@ -200,11 +205,11 @@ class StarModel:
             await db.star.insert_one(jsonable_encoder(model))
 
     @classmethod
-    async def list(cls) -> List['StarModel']:
+    async def list(cls) -> List["StarModel"]:
         return [StarModel.from_dict(doc) async for doc in db.star.find()]
 
     @classmethod
-    async def find(cls, star_name: str) -> 'StarModel':
+    async def find(cls, star_name: str) -> "StarModel":
         doc = await db.star.find_one({"name": star_name})
         return StarModel.from_dict(doc)
 
@@ -214,23 +219,17 @@ class ConfigModel:
     veins_utilization: int
 
     @classmethod
-    def from_logic(cls, config: Config) -> 'ConfigModel':
-        model = ConfigModel(
-            veins_utilization=config.veins_utilization
-        )
+    def from_logic(cls, config: Config) -> "ConfigModel":
+        model = ConfigModel(veins_utilization=config.veins_utilization)
         return model
 
     def to_logic(self) -> Config:
-        config = Config(
-            veins_utilization=self.veins_utilization
-        )
+        config = Config(veins_utilization=self.veins_utilization)
         return config
 
     @classmethod
-    def from_dict(cls, document: Dict[str, Any]) -> 'ConfigModel':
-        model = ConfigModel(
-            veins_utilization=document["veins_utilization"]
-        )
+    def from_dict(cls, document: Dict[str, Any]) -> "ConfigModel":
+        model = ConfigModel(veins_utilization=document["veins_utilization"])
         return model
 
     @classmethod
@@ -243,6 +242,6 @@ class ConfigModel:
             await db.config.insert_one(jsonable_encoder(model))
 
     @classmethod
-    async def find(cls) -> 'ConfigModel':
+    async def find(cls) -> "ConfigModel":
         doc = await db.config.find_one()
         return ConfigModel.from_dict(doc)

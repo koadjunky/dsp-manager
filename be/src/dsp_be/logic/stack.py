@@ -13,7 +13,7 @@ class Stack:
         else:
             self.products[name] = value
 
-    def combine(self, stack: 'Stack') -> None:
+    def combine(self, stack: "Stack") -> None:
         for name, value in stack.products.items():
             self.add(name, value)
 

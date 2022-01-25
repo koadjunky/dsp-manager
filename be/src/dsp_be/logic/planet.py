@@ -1,10 +1,13 @@
 import uuid
+import weakref
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional
-import weakref
 
 from dsp_be.logic.stack import Stack
 from dsp_be.logic.star import Star
+
+if False:
+    from dsp_be.logic.factory import Factory  # To make mypy happy
 
 
 @dataclass
@@ -16,7 +19,7 @@ class Planet:
     star: Optional[Star]
     id: str = field(default_factory=lambda: uuid.uuid4().hex)
     _star: Star = field(init=False, repr=False, default=None)
-    factories: List['Factory'] = field(default_factory=list)
+    factories: List["Factory"] = field(default_factory=list)
 
     def production(self) -> Stack:
         result = Stack()
@@ -35,9 +38,9 @@ class Planet:
 
     @property
     def star_name(self) -> str:
-        return getattr(self._star, 'name', None)
+        return getattr(self._star, "name", None)
 
-    @property
+    @property  # type: ignore[no-redef]
     def star(self) -> Optional[Star]:
         return self._star
 

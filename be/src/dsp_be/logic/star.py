@@ -4,6 +4,9 @@ from typing import List
 
 from dsp_be.logic.stack import Stack
 
+if False:
+    from dsp_be.logic.planet import Planet  # To make mypy happy
+
 
 @dataclass
 class Star:
@@ -11,7 +14,7 @@ class Star:
     imports: List[str]
     exports: List[str]
     id: str = field(default_factory=lambda: uuid.uuid4().hex)
-    planets: List['Planet'] = field(default_factory=list)
+    planets: List["Planet"] = field(default_factory=list)
 
     def production(self) -> Stack:
         result = Stack()

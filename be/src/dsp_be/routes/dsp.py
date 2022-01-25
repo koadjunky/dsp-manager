@@ -1,10 +1,7 @@
-from typing import List
-
 from fastapi import APIRouter
 
-from dsp_be.logic.star import Star
-from dsp_be.motor import StarModel, PlanetModel, FactoryModel, ConfigModel
-from dsp_be.routes.dto import StarDto, PlanetDto, SystemDto
+from dsp_be.motor import ConfigModel, FactoryModel, PlanetModel, StarModel
+from dsp_be.routes.dto import PlanetDto, StarDto, SystemDto
 
 router = APIRouter()
 
@@ -14,7 +11,7 @@ router = APIRouter()
     response_model=SystemDto,
     summary="Return list of all recorded star systems.",
     description="Return list of all recorded star systems.",
-    response_description="Return list of all recorded star systems."
+    response_description="Return list of all recorded star systems.",
 )
 async def get_stars() -> SystemDto:
     config = (await ConfigModel.find()).to_logic()
@@ -32,7 +29,7 @@ async def get_stars() -> SystemDto:
     response_model=StarDto,
     summary="Return list of all recorded planets in star sysem.",
     description="Return list of all recorded star systems.",
-    response_description="Return list of all recorded star systems."
+    response_description="Return list of all recorded star systems.",
 )
 async def get_star(star_name: str) -> StarDto:
     config = (await ConfigModel.find()).to_logic()
@@ -51,7 +48,7 @@ async def get_star(star_name: str) -> StarDto:
     description="Return planet with all factories.",
     response_description="Return planet with all factories.",
 )
-async def get_planet(star_name:str, planet_name:str) -> PlanetDto:
+async def get_planet(star_name: str, planet_name: str) -> PlanetDto:
     config = (await ConfigModel.find()).to_logic()
     star = (await StarModel.find(star_name)).to_logic()
     planet = (await PlanetModel.find(planet_name)).to_logic(star)
