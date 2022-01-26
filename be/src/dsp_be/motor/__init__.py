@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 import motor.motor_asyncio
 from bson import ObjectId
@@ -92,6 +92,13 @@ class FactoryModel:
             async for doc in db.factory.find({"planet_name": planet_name})
         ]
 
+    @classmethod
+    async def find(cls, planet_name: str, factory_name: str) -> Optional["FactoryModel"]:
+        doc = await db.factory.find_one({"planet_name": planet_name, "name": factory_name})
+        if doc is None:
+            return None
+        return FactoryModel.from_dict(doc)
+
 
 @dataclass
 class PlanetModel:
@@ -154,8 +161,10 @@ class PlanetModel:
         ]
 
     @classmethod
-    async def find(cls, planet_name) -> "PlanetModel":
+    async def find(cls, planet_name) -> Optional["PlanetModel"]:
         doc = await db.planet.find_one({"name": planet_name})
+        if doc is None:
+            return None
         return PlanetModel.from_dict(doc)
 
 
@@ -209,8 +218,10 @@ class StarModel:
         return [StarModel.from_dict(doc) async for doc in db.star.find()]
 
     @classmethod
-    async def find(cls, star_name: str) -> "StarModel":
+    async def find(cls, star_name: str) -> Optional["StarModel"]:
         doc = await db.star.find_one({"name": star_name})
+        if doc is None:
+            return None
         return StarModel.from_dict(doc)
 
 
@@ -242,6 +253,8 @@ class ConfigModel:
             await db.config.insert_one(jsonable_encoder(model))
 
     @classmethod
-    async def find(cls) -> "ConfigModel":
+    async def find(cls) -> Optional["ConfigModel"]:
         doc = await db.config.find_one()
+        if doc is None:
+            return None
         return ConfigModel.from_dict(doc)

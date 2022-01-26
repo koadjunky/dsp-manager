@@ -691,6 +691,9 @@ class RecipeBook:
     def get(self, name):
         return self.recipes[name]
 
+    def has(self, name):
+        return name in self.recipes
+
 
 def load_recipes() -> RecipeBook:
     rb = RecipeBook()

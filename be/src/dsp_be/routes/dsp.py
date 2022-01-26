@@ -1,7 +1,8 @@
 from fastapi import APIRouter
 
+from dsp_be.logic.factory import Factory
 from dsp_be.motor import ConfigModel, FactoryModel, PlanetModel, StarModel
-from dsp_be.routes.dto import PlanetDto, StarDto, SystemDto
+from dsp_be.routes.dto import PlanetDto, StarDto, SystemDto, FactoryCreateDto
 
 router = APIRouter()
 
@@ -55,3 +56,17 @@ async def get_planet(star_name: str, planet_name: str) -> PlanetDto:
     for model in await FactoryModel.list(planet.name):
         model.to_logic(planet, config)
     return PlanetDto.from_logic(planet)
+
+# TODO: Errors, etc
+@router.post(
+    "/api/factories",
+)
+async def create_factory(factory_dto: FactoryCreateDto):
+    config = (await ConfigModel.find()).to_logic()
+    star = (await StarModel.find(factory_dto.star_name)).to_logic()
+    planet = (await PlanetModel.find(factory_dto.planet_name)).to_logic(star)
+    factory_model = await FactoryModel.find(planet.name, factory_dto.name)
+    if factory_model is not None:
+        raise ValueError(f"Factory {factory_dto.name} already exists on planet {planet.name}")
+    factory = Factory(name=factory_dto.name, recipe_name=factory_dto.recipe, machine_name=factory_dto.machine, count=factory_dto.count, planet=planet, config=config)
+    await FactoryModel.update(factory)
