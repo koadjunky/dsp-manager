@@ -31,6 +31,10 @@ class FactoryCreateDto(BaseModel):
         return recipe_name
 
 
+class FactoryUpdateDto(FactoryCreateDto):
+    id: str
+
+
 class FactoryDto(BaseModel):
     id: str
     name: str

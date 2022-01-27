@@ -86,6 +86,15 @@ class FactoryModel:
             await db.factory.insert_one(jsonable_encoder(model))
 
     @classmethod
+    async def update_id(cls, factory: Factory) -> None:
+        model = FactoryModel.from_logic(factory)
+        if (model_db := await db.factory.find_one({"id": model.id})) is not None:
+            _id = model_db["_id"]
+            await db.factory.update_one({"_id": _id}, {"$set": jsonable_encoder(model)})
+        else:
+            await db.factory.insert_one(jsonable_encoder(model))
+
+    @classmethod
     async def list(cls, planet_name: str) -> List["FactoryModel"]:
         return [
             FactoryModel.from_dict(doc)
@@ -95,6 +104,13 @@ class FactoryModel:
     @classmethod
     async def find(cls, planet_name: str, factory_name: str) -> Optional["FactoryModel"]:
         doc = await db.factory.find_one({"planet_name": planet_name, "name": factory_name})
+        if doc is None:
+            return None
+        return FactoryModel.from_dict(doc)
+
+    @classmethod
+    async def find_id(cls, planet_name: str, factory_id: str) -> Optional["FactoryModel"]:
+        doc = await db.factory.find_one({"planet_name": planet_name, "id": factory_id})
         if doc is None:
             return None
         return FactoryModel.from_dict(doc)
