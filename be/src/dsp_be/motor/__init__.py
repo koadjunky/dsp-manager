@@ -87,6 +87,7 @@ class FactoryModel:
 
     @classmethod
     async def update_id(cls, factory: Factory) -> None:
+        #TODO: make single update method based on id, rewrite database initialization routines
         model = FactoryModel.from_logic(factory)
         if (model_db := await db.factory.find_one({"id": model.id})) is not None:
             _id = model_db["_id"]
