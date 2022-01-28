@@ -116,6 +116,10 @@ class FactoryModel:
             return None
         return FactoryModel.from_dict(doc)
 
+    @classmethod
+    async def delete_id(cls, factory_id: str) -> None:
+        await db.factory.delete_many({'id': factory_id})
+
 
 @dataclass
 class PlanetModel:

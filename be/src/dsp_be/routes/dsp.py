@@ -2,7 +2,7 @@ from fastapi import APIRouter
 
 from dsp_be.logic.factory import Factory
 from dsp_be.motor import ConfigModel, FactoryModel, PlanetModel, StarModel
-from dsp_be.routes.dto import PlanetDto, StarDto, SystemDto, FactoryCreateDto, FactoryUpdateDto
+from dsp_be.routes.dto import PlanetDto, StarDto, SystemDto, FactoryCreateDto, FactoryUpdateDto, FactoryDeleteDto
 
 router = APIRouter()
 
@@ -87,3 +87,10 @@ async def update_factory(factory_dto: FactoryUpdateDto):
     factory = Factory(id=factory_dto.id, name=factory_dto.name, recipe_name=factory_dto.recipe, machine_name=factory_dto.machine,
                       count=factory_dto.count, planet=planet, config=config)
     await FactoryModel.update_id(factory)
+
+
+@router.delete(
+    "/api/factories"
+)
+async def delete_factory(factory_dto: FactoryDeleteDto):
+    await FactoryModel.delete_id(factory_dto.id)

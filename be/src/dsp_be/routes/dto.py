@@ -35,6 +35,10 @@ class FactoryUpdateDto(FactoryCreateDto):
     id: str
 
 
+class FactoryDeleteDto(BaseModel):
+    id: str
+
+
 class FactoryDto(BaseModel):
     id: str
     name: str
