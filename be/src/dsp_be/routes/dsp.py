@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 
 from dsp_be.logic.factory import Factory
 from dsp_be.motor import ConfigModel, FactoryModel, PlanetModel, StarModel
@@ -67,8 +67,7 @@ async def create_factory(factory_dto: FactoryCreateDto):
     planet = (await PlanetModel.find(factory_dto.planet_name)).to_logic(star)
     factory_model = await FactoryModel.find(planet.name, factory_dto.name)
     if factory_model is not None:
-        # TODO: This causes ugly error
-        raise ValueError(f"Factory {factory_dto.name} already exists on planet {planet.name}")
+        raise HTTPException(status_code=400, detail=f"Factory {factory_dto.name} already exists on planet {planet.name}")
     factory = Factory(name=factory_dto.name, recipe_name=factory_dto.recipe, machine_name=factory_dto.machine, count=factory_dto.count, planet=planet, config=config)
     await FactoryModel.update(factory)
 
@@ -82,8 +81,7 @@ async def update_factory(factory_dto: FactoryUpdateDto):
     planet = (await PlanetModel.find(factory_dto.planet_name)).to_logic(star)
     factory_model = await FactoryModel.find_id(planet.name, factory_dto.id)
     if factory_model is None:
-        # TODO: This causes ugly error
-        raise ValueError(f"Factory {factory_dto.id} does not exist on {planet.name}")
+        raise HTTPException(status_code=400, detail=f"Factory {factory_dto.name} does not exist on planet {planet.name}")
     factory = Factory(id=factory_dto.id, name=factory_dto.name, recipe_name=factory_dto.recipe, machine_name=factory_dto.machine,
                       count=factory_dto.count, planet=planet, config=config)
     await FactoryModel.update_id(factory)
