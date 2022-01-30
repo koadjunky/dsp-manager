@@ -87,7 +87,7 @@ class FactoryModel:
 
     @classmethod
     async def update_id(cls, factory: Factory) -> None:
-        #TODO: make single update method based on id, rewrite database initialization routines
+        # TODO: make single update method based on id, rewrite database initialization routines
         model = FactoryModel.from_logic(factory)
         if (model_db := await db.factory.find_one({"id": model.id})) is not None:
             _id = model_db["_id"]
@@ -103,14 +103,20 @@ class FactoryModel:
         ]
 
     @classmethod
-    async def find(cls, planet_name: str, factory_name: str) -> Optional["FactoryModel"]:
-        doc = await db.factory.find_one({"planet_name": planet_name, "name": factory_name})
+    async def find(
+        cls, planet_name: str, factory_name: str
+    ) -> Optional["FactoryModel"]:
+        doc = await db.factory.find_one(
+            {"planet_name": planet_name, "name": factory_name}
+        )
         if doc is None:
             return None
         return FactoryModel.from_dict(doc)
 
     @classmethod
-    async def find_id(cls, planet_name: str, factory_id: str) -> Optional["FactoryModel"]:
+    async def find_id(
+        cls, planet_name: str, factory_id: str
+    ) -> Optional["FactoryModel"]:
         doc = await db.factory.find_one({"planet_name": planet_name, "id": factory_id})
         if doc is None:
             return None
@@ -118,7 +124,7 @@ class FactoryModel:
 
     @classmethod
     async def delete_id(cls, factory_id: str) -> None:
-        await db.factory.delete_many({'id': factory_id})
+        await db.factory.delete_many({"id": factory_id})
 
 
 @dataclass
