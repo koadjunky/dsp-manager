@@ -73,7 +73,7 @@ async def create_factory(factory_dto: FactoryCreateDto):
     config = (await ConfigModel.find()).to_logic()
     star = (await StarModel.find(factory_dto.star_name)).to_logic()
     planet = (await PlanetModel.find(factory_dto.planet_name)).to_logic(star)
-    factory_model = await FactoryModel.find(planet.name, factory_dto.name)
+    factory_model = await FactoryModel.find_name(planet.name, factory_dto.name)
     if factory_model is not None:
         raise HTTPException(
             status_code=400,
@@ -112,7 +112,7 @@ async def update_factory(factory_dto: FactoryUpdateDto):
         planet=planet,
         config=config,
     )
-    await FactoryModel.update_id(factory)
+    await FactoryModel.update(factory)
 
 
 @router.delete("/api/factories")

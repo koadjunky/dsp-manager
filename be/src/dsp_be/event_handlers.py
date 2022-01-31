@@ -11,6 +11,13 @@ from dsp_be.motor import ConfigModel, FactoryModel, PlanetModel, StarModel
 
 
 def start_app_handler(app: FastAPI) -> Callable:
+
+    async def update_or_create_factory(factory : Factory):
+        factory_db = await FactoryModel.find_name(factory.planet_name, factory.name)
+        if factory_db is not None:
+            factory.id = factory_db.id
+        await FactoryModel.update(factory)
+
     async def startup() -> None:
         logger.info("Running app start handler.")
         config = Config()
@@ -23,7 +30,7 @@ def start_app_handler(app: FastAPI) -> Callable:
             name="Sun 3", resources={}, exports=["processor"], imports=[], star=sun
         )
         await PlanetModel.update(earth)
-        await FactoryModel.update(
+        await update_or_create_factory(
             Factory(
                 name="Processor #1",
                 machine_name="assembler2",
@@ -33,7 +40,7 @@ def start_app_handler(app: FastAPI) -> Callable:
                 config=config,
             )
         )
-        await FactoryModel.update(
+        await update_or_create_factory(
             Factory(
                 name="Circuit Board #1",
                 machine_name="assembler2",
@@ -43,7 +50,7 @@ def start_app_handler(app: FastAPI) -> Callable:
                 config=config,
             )
         )
-        await FactoryModel.update(
+        await update_or_create_factory(
             Factory(
                 name="Iron Ingot #1",
                 machine_name="arc_smelter",
@@ -53,7 +60,7 @@ def start_app_handler(app: FastAPI) -> Callable:
                 config=config,
             )
         )
-        await FactoryModel.update(
+        await update_or_create_factory(
             Factory(
                 name="Iron Mine #1",
                 machine_name="mine",
@@ -63,7 +70,7 @@ def start_app_handler(app: FastAPI) -> Callable:
                 config=config,
             )
         )
-        await FactoryModel.update(
+        await update_or_create_factory(
             Factory(
                 name="Microcrystalline #1",
                 machine_name="assembler2",
@@ -73,7 +80,7 @@ def start_app_handler(app: FastAPI) -> Callable:
                 config=config,
             )
         )
-        await FactoryModel.update(
+        await update_or_create_factory(
             Factory(
                 name="Silicon #1",
                 machine_name="arc_smelter",
@@ -83,7 +90,7 @@ def start_app_handler(app: FastAPI) -> Callable:
                 config=config,
             )
         )
-        await FactoryModel.update(
+        await update_or_create_factory(
             Factory(
                 name="Silicon Mine #1",
                 machine_name="mine",
@@ -93,7 +100,7 @@ def start_app_handler(app: FastAPI) -> Callable:
                 config=config,
             )
         )
-        await FactoryModel.update(
+        await update_or_create_factory(
             Factory(
                 name="Copper Ingot #1",
                 machine_name="arc_smelter",
@@ -103,7 +110,7 @@ def start_app_handler(app: FastAPI) -> Callable:
                 config=config,
             )
         )
-        await FactoryModel.update(
+        await update_or_create_factory(
             Factory(
                 name="Copper Mine #1",
                 machine_name="mine",

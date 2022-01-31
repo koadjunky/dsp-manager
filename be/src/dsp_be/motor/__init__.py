@@ -79,16 +79,6 @@ class FactoryModel:
     @classmethod
     async def update(cls, factory: Factory) -> None:
         model = FactoryModel.from_logic(factory)
-        if (model_db := await db.factory.find_one({"name": model.name})) is not None:
-            _id = model_db["_id"]
-            await db.factory.update_one({"_id": _id}, {"$set": jsonable_encoder(model)})
-        else:
-            await db.factory.insert_one(jsonable_encoder(model))
-
-    @classmethod
-    async def update_id(cls, factory: Factory) -> None:
-        # TODO: make single update method based on id, rewrite database initialization routines
-        model = FactoryModel.from_logic(factory)
         if (model_db := await db.factory.find_one({"id": model.id})) is not None:
             _id = model_db["_id"]
             await db.factory.update_one({"_id": _id}, {"$set": jsonable_encoder(model)})
@@ -103,7 +93,7 @@ class FactoryModel:
         ]
 
     @classmethod
-    async def find(
+    async def find_name(
         cls, planet_name: str, factory_name: str
     ) -> Optional["FactoryModel"]:
         doc = await db.factory.find_one(
