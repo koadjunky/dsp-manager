@@ -184,6 +184,10 @@ class PlanetModel:
             return None
         return PlanetModel.from_dict(doc)
 
+    @classmethod
+    async def delete(cls, planet_name: str) -> None:
+        await db.planet.delete_many({"name": planet_name})
+
 
 @dataclass
 class StarModel:

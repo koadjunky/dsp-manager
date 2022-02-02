@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 
-from dsp_be.logic.factory import Factory
+from dsp_be.logic.factory import Factory, Planet
 from dsp_be.motor import ConfigModel, FactoryModel, PlanetModel, StarModel
 from dsp_be.routes.dto import (
     FactoryCreateDto,
@@ -8,7 +8,7 @@ from dsp_be.routes.dto import (
     FactoryUpdateDto,
     PlanetDto,
     StarDto,
-    SystemDto,
+    SystemDto, PlanetCreateDto, PlanetUpdateDto, PlanetDeleteDto,
 )
 
 router = APIRouter()
@@ -118,3 +118,53 @@ async def update_factory(factory_dto: FactoryUpdateDto):
 @router.delete("/api/factories")
 async def delete_factory(factory_dto: FactoryDeleteDto):
     await FactoryModel.delete_id(factory_dto.id)
+
+
+@router.post(
+    "/api/planets",
+)
+async def create_planet(planet_dto: PlanetCreateDto):
+    star = (await StarModel.find(planet_dto.star_name)).to_logic()
+    planet_model = await PlanetModel.find(planet_dto.name)
+    if planet_model is not None:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Planet {planet_dto.name} already exists",
+        )
+    planet = Planet(
+        name=planet_dto.name,
+        resources=planet_dto.resources,
+        imports=planet_dto.imports,
+        exports=planet_dto.exports,
+        star=star
+    )
+    await PlanetModel.update(planet)
+
+
+@router.put(
+    "/api/planets",
+)
+async def update_planet(planet_dto: PlanetUpdateDto):
+    star = (await StarModel.find(planet_dto.star_name)).to_logic()
+    planet_model = (await PlanetModel.find(planet_dto.name)).to_logic(star)
+    if planet_model is None:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Planet {planet_dto.name} does not exist",
+        )
+    planet = Planet(
+        id=planet_dto.id,
+        name=planet_dto.name,
+        resources=planet_dto.resources,
+        imports=planet_dto.imports,
+        exports=planet_dto.exports,
+        star=star
+    )
+    await PlanetModel.update(planet)
+
+
+@router.delete("/api/planets")
+async def delete_planet(planet_dto: PlanetDeleteDto):
+    await PlanetModel.delete(planet_dto.name)
+
+
