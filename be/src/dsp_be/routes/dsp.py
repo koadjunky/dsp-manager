@@ -6,9 +6,12 @@ from dsp_be.routes.dto import (
     FactoryCreateDto,
     FactoryDeleteDto,
     FactoryUpdateDto,
+    PlanetCreateDto,
+    PlanetDeleteDto,
     PlanetDto,
+    PlanetUpdateDto,
     StarDto,
-    SystemDto, PlanetCreateDto, PlanetUpdateDto, PlanetDeleteDto,
+    SystemDto,
 )
 
 router = APIRouter()
@@ -136,7 +139,7 @@ async def create_planet(planet_dto: PlanetCreateDto):
         resources=planet_dto.resources,
         imports=planet_dto.imports,
         exports=planet_dto.exports,
-        star=star
+        star=star,
     )
     await PlanetModel.update(planet)
 
@@ -158,7 +161,7 @@ async def update_planet(planet_dto: PlanetUpdateDto):
         resources=planet_dto.resources,
         imports=planet_dto.imports,
         exports=planet_dto.exports,
-        star=star
+        star=star,
     )
     await PlanetModel.update(planet)
 
@@ -166,5 +169,3 @@ async def update_planet(planet_dto: PlanetUpdateDto):
 @router.delete("/api/planets")
 async def delete_planet(planet_dto: PlanetDeleteDto):
     await PlanetModel.delete(planet_dto.name)
-
-
