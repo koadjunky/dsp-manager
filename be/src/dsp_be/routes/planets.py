@@ -29,6 +29,7 @@ async def create_planet(planet_dto: PlanetCreateDto):
 
 # TODO: Make id key for planets
 # TODO: Names must be unique
+# TODO: Verify, that star is present
 @router.put("/")
 async def update_planet(planet_dto: PlanetUpdateDto):
     star = (await StarModel.find(planet_dto.star_name)).to_logic()
