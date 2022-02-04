@@ -1,7 +1,10 @@
 from fastapi import APIRouter, HTTPException
 
 from dsp_be.logic.factory import Factory, Planet
-from dsp_be.motor import ConfigModel, FactoryModel, PlanetModel, StarModel
+from dsp_be.motor.config import ConfigModel
+from dsp_be.motor.factory import FactoryModel
+from dsp_be.motor.planet import PlanetModel
+from dsp_be.motor.star import StarModel
 from dsp_be.routes.dto import (
     FactoryCreateDto,
     FactoryDeleteDto,
@@ -143,7 +146,8 @@ async def create_planet(planet_dto: PlanetCreateDto):
     )
     await PlanetModel.update(planet)
 
-
+# TODO: Make id key for planets
+# TODO: Names must be unique
 @router.put(
     "/api/planets",
 )

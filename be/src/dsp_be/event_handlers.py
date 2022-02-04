@@ -7,7 +7,10 @@ from dsp_be.logic.config import Config
 from dsp_be.logic.factory import Factory
 from dsp_be.logic.planet import Planet
 from dsp_be.logic.star import Star
-from dsp_be.motor import ConfigModel, FactoryModel, PlanetModel, StarModel
+from dsp_be.motor.config import ConfigModel
+from dsp_be.motor.factory import FactoryModel
+from dsp_be.motor.planet import PlanetModel
+from dsp_be.motor.star import StarModel
 
 
 def start_app_handler(app: FastAPI) -> Callable:
