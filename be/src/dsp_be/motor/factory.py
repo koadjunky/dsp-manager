@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, Any, List, Optional
+from typing import Any, Dict, List, Optional
 
 from fastapi.encoders import jsonable_encoder
 
@@ -72,7 +72,7 @@ class FactoryModel:
 
     @classmethod
     async def find_name(
-            cls, planet_name: str, factory_name: str
+        cls, planet_name: str, factory_name: str
     ) -> Optional["FactoryModel"]:
         doc = await db.factory.find_one(
             {"planet_name": planet_name, "name": factory_name}
@@ -83,7 +83,7 @@ class FactoryModel:
 
     @classmethod
     async def find_id(
-            cls, planet_name: str, factory_id: str
+        cls, planet_name: str, factory_id: str
     ) -> Optional["FactoryModel"]:
         doc = await db.factory.find_one({"planet_name": planet_name, "id": factory_id})
         if doc is None:
@@ -93,5 +93,3 @@ class FactoryModel:
     @classmethod
     async def delete_id(cls, factory_id: str) -> None:
         await db.factory.delete_many({"id": factory_id})
-
-

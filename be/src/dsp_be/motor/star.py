@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List, Dict, Any, Optional
+from typing import Any, Dict, List, Optional
 
 from fastapi.encoders import jsonable_encoder
 
@@ -62,5 +62,3 @@ class StarModel:
         if doc is None:
             return None
         return StarModel.from_dict(doc)
-
-

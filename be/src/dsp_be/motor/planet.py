@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, List, Any, Optional
+from typing import Any, Dict, List, Optional
 
 from fastapi.encoders import jsonable_encoder
 
@@ -51,6 +51,7 @@ class PlanetModel:
             exports=document["exports"].copy(),
         )
         return model
+
     # TODO: Split this to create and update
     @classmethod
     async def update(cls, planet: Planet) -> None:
