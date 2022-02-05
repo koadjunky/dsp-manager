@@ -26,13 +26,16 @@ class ConfigModel:
         return model
 
     @classmethod
+    async def create(cls, config: Config) -> None:
+        model = ConfigModel.from_logic(config)
+        await db.config.insert_one(jsonable_encoder(model))
+
+    @classmethod
     async def update(cls, config: Config) -> None:
         model = ConfigModel.from_logic(config)
-        if (model_db := await db.config.find_one()) is not None:
-            _id = model_db["_id"]
-            await db.config.update_one({"_id": _id}, {"$set": jsonable_encoder(model)})
-        else:
-            await db.config.insert_one(jsonable_encoder(model))
+        model_db = await db.config.find_one()
+        _id = model_db["_id"]
+        await db.config.update_one({"_id": _id}, {"$set": jsonable_encoder(model)})
 
     @classmethod
     async def find(cls) -> Optional["ConfigModel"]:

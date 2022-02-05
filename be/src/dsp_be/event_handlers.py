@@ -38,10 +38,17 @@ def start_app_handler(app: FastAPI) -> Callable:
         else:
             await StarModel.create(star)
 
+    async def update_or_create_config(config: Config):
+        config_db = await ConfigModel.find()
+        if config_db is not None:
+            await ConfigModel.update(config)
+        else:
+            await ConfigModel.create(config)
+
     async def startup() -> None:
         logger.info("Running app start handler.")
         config = Config()
-        await ConfigModel.update(config)
+        await update_or_create_config(config)
         sun = Star(
             name="Sun", exports=["circuit_board", "copper_ingot"], imports=["iron_ore"]
         )
