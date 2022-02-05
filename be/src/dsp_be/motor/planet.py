@@ -52,15 +52,17 @@ class PlanetModel:
         )
         return model
 
-    # TODO: Split this to create and update
+    @classmethod
+    async def create(cls, planet: Planet) -> None:
+        model = PlanetModel.from_logic(planet)
+        await db.planet.insert_one(jsonable_encoder(model))
+
     @classmethod
     async def update(cls, planet: Planet) -> None:
         model = PlanetModel.from_logic(planet)
-        if (model_db := await db.planet.find_one({"name": model.name})) is not None:
-            _id = model_db["_id"]
-            await db.planet.update_one({"_id": _id}, {"$set": jsonable_encoder(model)})
-        else:
-            await db.planet.insert_one(jsonable_encoder(model))
+        model_db = await db.planet.find_one({"id": model.id})
+        _id = model_db["_id"]
+        await db.planet.update_one({"_id": _id}, {"$set": jsonable_encoder(model)})
 
     @classmethod
     async def list(cls, star_name: str) -> List["PlanetModel"]:

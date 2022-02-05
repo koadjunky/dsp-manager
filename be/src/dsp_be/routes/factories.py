@@ -34,7 +34,7 @@ async def create_factory(factory_dto: FactoryCreateDto):
         planet=planet,
         config=config,
     )
-    await FactoryModel.update(factory)
+    await FactoryModel.create(factory)
 
 
 @router.put("/")

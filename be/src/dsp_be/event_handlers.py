@@ -18,7 +18,25 @@ def start_app_handler(app: FastAPI) -> Callable:
         factory_db = await FactoryModel.find_name(factory.planet_name, factory.name)
         if factory_db is not None:
             factory.id = factory_db.id
-        await FactoryModel.update(factory)
+            await FactoryModel.update(factory)
+        else:
+            await FactoryModel.create(factory)
+
+    async def update_or_create_planet(planet: Planet):
+        planet_db = await PlanetModel.find(planet.name)
+        if planet_db is not None:
+            planet.id = planet_db.id
+            await PlanetModel.update(planet)
+        else:
+            await PlanetModel.create(planet)
+
+    async def update_or_create_star(star: Star):
+        star_db = await StarModel.find(star.name)
+        if star_db is not None:
+            star.id = star_db.id
+            await StarModel.update(star)
+        else:
+            await StarModel.create(star)
 
     async def startup() -> None:
         logger.info("Running app start handler.")
@@ -27,11 +45,11 @@ def start_app_handler(app: FastAPI) -> Callable:
         sun = Star(
             name="Sun", exports=["circuit_board", "copper_ingot"], imports=["iron_ore"]
         )
-        await StarModel.update(sun)
+        await update_or_create_star(sun)
         earth = Planet(
             name="Sun 3", resources={}, exports=["processor"], imports=[], star=sun
         )
-        await PlanetModel.update(earth)
+        await update_or_create_planet(earth)
         await update_or_create_factory(
             Factory(
                 name="Processor #1",

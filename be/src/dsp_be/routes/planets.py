@@ -24,7 +24,7 @@ async def create_planet(planet_dto: PlanetCreateDto):
         exports=planet_dto.exports,
         star=star,
     )
-    await PlanetModel.update(planet)
+    await PlanetModel.create(planet)
 
 
 # TODO: Make id key for planets

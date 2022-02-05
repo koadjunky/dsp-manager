@@ -44,13 +44,16 @@ class StarModel:
         return model
 
     @classmethod
+    async def create(cls, star: Star) -> None:
+        model = StarModel.from_logic(star)
+        await db.star.insert_one(jsonable_encoder(model))
+
+    @classmethod
     async def update(cls, star: Star) -> None:
         model = StarModel.from_logic(star)
-        if (model_db := await db.star.find_one({"name": model.name})) is not None:
-            _id = model_db["_id"]
-            await db.star.update_one({"_id": _id}, {"$set": jsonable_encoder(model)})
-        else:
-            await db.star.insert_one(jsonable_encoder(model))
+        model_db = await db.star.find_one({"id": model.id})
+        _id = model_db["_id"]
+        await db.star.update_one({"_id": _id}, {"$set": jsonable_encoder(model)})
 
     @classmethod
     async def list(cls) -> List["StarModel"]:
