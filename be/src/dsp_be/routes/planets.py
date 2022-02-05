@@ -10,7 +10,7 @@ router = APIRouter()
 
 @router.post("/")
 async def create_planet(planet_dto: PlanetCreateDto):
-    star = (await StarModel.find(planet_dto.star_name)).to_logic()
+    star = (await StarModel.find_name(planet_dto.star_name)).to_logic()
     planet_model = await PlanetModel.find(planet_dto.name)
     if planet_model is not None:
         raise HTTPException(
@@ -32,12 +32,12 @@ async def create_planet(planet_dto: PlanetCreateDto):
 # TODO: Verify, that star is present
 @router.put("/")
 async def update_planet(planet_dto: PlanetUpdateDto):
-    star = (await StarModel.find(planet_dto.star_name)).to_logic()
-    planet_model = (await PlanetModel.find(planet_dto.name)).to_logic(star)
+    star = (await StarModel.find_name(planet_dto.star_name)).to_logic()
+    planet_model = (await PlanetModel.find(planet_dto.id)).to_logic(star)
     if planet_model is None:
         raise HTTPException(
             status_code=400,
-            detail=f"Planet {planet_dto.name} does not exist",
+            detail=f"Planet {planet_dto.id} does not exist",
         )
     planet = Planet(
         id=planet_dto.id,

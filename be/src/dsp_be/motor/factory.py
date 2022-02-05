@@ -13,7 +13,7 @@ from dsp_be.motor.driver import db
 class FactoryModel:
     id: str
     name: str
-    planet_name: str
+    planet_name: str  # TODO: Should link by planet_id
     recipe_name: str
     machine_name: str
     count: int
@@ -85,14 +85,12 @@ class FactoryModel:
         return FactoryModel.from_dict(doc)
 
     @classmethod
-    async def find_id(
-        cls, planet_name: str, factory_id: str
-    ) -> Optional["FactoryModel"]:
-        doc = await db.factory.find_one({"planet_name": planet_name, "id": factory_id})
+    async def find(cls, factory_id: str) -> Optional["FactoryModel"]:
+        doc = await db.factory.find_one({"id": factory_id})
         if doc is None:
             return None
         return FactoryModel.from_dict(doc)
 
     @classmethod
-    async def delete_id(cls, factory_id: str) -> None:
+    async def delete(cls, factory_id: str) -> None:
         await db.factory.delete_many({"id": factory_id})

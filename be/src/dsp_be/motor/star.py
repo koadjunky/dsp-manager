@@ -60,7 +60,14 @@ class StarModel:
         return [StarModel.from_dict(doc) async for doc in db.star.find()]
 
     @classmethod
-    async def find(cls, star_name: str) -> Optional["StarModel"]:
+    async def find(cls, star_id: str) -> Optional["StarModel"]:
+        doc = await db.star.find_one({"id": star_id})
+        if doc is None:
+            return None
+        return StarModel.from_dict(doc)
+
+    @classmethod
+    async def find_name(cls, star_name: str) -> Optional["StarModel"]:
         doc = await db.star.find_one({"name": star_name})
         if doc is None:
             return None

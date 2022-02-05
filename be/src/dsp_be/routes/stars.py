@@ -36,7 +36,7 @@ async def get_stars() -> SystemDto:
 )
 async def get_star(star_name: str) -> StarDto:
     config = (await ConfigModel.find()).to_logic()
-    star = (await StarModel.find(star_name)).to_logic()
+    star = (await StarModel.find_name(star_name)).to_logic()
     planets = [model.to_logic(star) for model in await PlanetModel.list(star_name)]
     for planet in planets:
         for model in await FactoryModel.list(planet.name):
@@ -53,7 +53,7 @@ async def get_star(star_name: str) -> StarDto:
 )
 async def get_planet(star_name: str, planet_name: str) -> PlanetDto:
     config = (await ConfigModel.find()).to_logic()
-    star = (await StarModel.find(star_name)).to_logic()
+    star = (await StarModel.find_name(star_name)).to_logic()
     planet = (await PlanetModel.find(planet_name)).to_logic(star)
     for model in await FactoryModel.list(planet.name):
         model.to_logic(planet, config)

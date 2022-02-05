@@ -23,7 +23,7 @@ def start_app_handler(app: FastAPI) -> Callable:
             await FactoryModel.create(factory)
 
     async def update_or_create_planet(planet: Planet):
-        planet_db = await PlanetModel.find(planet.name)
+        planet_db = await PlanetModel.find_name(planet.name)
         if planet_db is not None:
             planet.id = planet_db.id
             await PlanetModel.update(planet)
@@ -31,7 +31,7 @@ def start_app_handler(app: FastAPI) -> Callable:
             await PlanetModel.create(planet)
 
     async def update_or_create_star(star: Star):
-        star_db = await StarModel.find(star.name)
+        star_db = await StarModel.find_name(star.name)
         if star_db is not None:
             star.id = star_db.id
             await StarModel.update(star)

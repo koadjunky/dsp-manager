@@ -12,7 +12,7 @@ from dsp_be.motor.driver import db
 class PlanetModel:
     id: str
     name: str
-    star_name: str
+    star_name: str  # TODO: Should link by star_id
     resources: Dict[str, float]
     imports: List[str]
     exports: List[str]
@@ -72,7 +72,14 @@ class PlanetModel:
         ]
 
     @classmethod
-    async def find(cls, planet_name) -> Optional["PlanetModel"]:
+    async def find(cls, planet_id: str) -> Optional["PlanetModel"]:
+        doc = await db.planet.find_one({"id": planet_id})
+        if doc is None:
+            return None
+        return PlanetModel.from_dict(doc)
+
+    @classmethod
+    async def find_name(cls, planet_name: str) -> Optional["PlanetModel"]:
         doc = await db.planet.find_one({"name": planet_name})
         if doc is None:
             return None

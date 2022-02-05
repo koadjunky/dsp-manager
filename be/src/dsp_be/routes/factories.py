@@ -18,8 +18,8 @@ router = APIRouter()
 @router.post("/")
 async def create_factory(factory_dto: FactoryCreateDto):
     config = (await ConfigModel.find()).to_logic()
-    star = (await StarModel.find(factory_dto.star_name)).to_logic()
-    planet = (await PlanetModel.find(factory_dto.planet_name)).to_logic(star)
+    star = (await StarModel.find_name(factory_dto.star_name)).to_logic()
+    planet = (await PlanetModel.find_name(factory_dto.planet_name)).to_logic(star)
     factory_model = await FactoryModel.find_name(planet.name, factory_dto.name)
     if factory_model is not None:
         raise HTTPException(
@@ -40,13 +40,13 @@ async def create_factory(factory_dto: FactoryCreateDto):
 @router.put("/")
 async def update_factory(factory_dto: FactoryUpdateDto):
     config = (await ConfigModel.find()).to_logic()
-    star = (await StarModel.find(factory_dto.star_name)).to_logic()
-    planet = (await PlanetModel.find(factory_dto.planet_name)).to_logic(star)
-    factory_model = await FactoryModel.find_id(planet.name, factory_dto.id)
+    star = (await StarModel.find_name(factory_dto.star_name)).to_logic()
+    planet = (await PlanetModel.find_name(factory_dto.planet_name)).to_logic(star)
+    factory_model = await FactoryModel.find(factory_dto.id)
     if factory_model is None:
         raise HTTPException(
             status_code=400,
-            detail=f"Factory {factory_dto.name} does not exist on planet {planet.name}",
+            detail=f"Factory {factory_dto.id} does not exist.",
         )
     factory = Factory(
         id=factory_dto.id,
@@ -62,4 +62,4 @@ async def update_factory(factory_dto: FactoryUpdateDto):
 
 @router.delete("/")
 async def delete_factory(factory_dto: FactoryDeleteDto):
-    await FactoryModel.delete_id(factory_dto.id)
+    await FactoryModel.delete(factory_dto.id)
