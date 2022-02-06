@@ -74,3 +74,14 @@ class SystemDto(BaseModel):
             stars=stars,
         )
         return dto
+
+
+# TODO: Check imports, exports
+class StarCreateDto(BaseModel):
+    name: str
+    imports: List[str]
+    exports: List[str]
+
+
+class StarUpdateDto(StarCreateDto):
+    id: str

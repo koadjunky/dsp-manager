@@ -1,10 +1,13 @@
-from fastapi import APIRouter, HTTPException
+from typing import Any
+
+from fastapi import APIRouter, Depends, HTTPException
 
 from dsp_be.logic.factory import Factory
-from dsp_be.motor.config import ConfigModel
-from dsp_be.motor.factory import FactoryModel
-from dsp_be.motor.planet import PlanetModel
-from dsp_be.motor.star import StarModel
+from dsp_be.motor.config import ConfigRepository
+from dsp_be.motor.driver import get_db
+from dsp_be.motor.factory import FactoryRepository
+from dsp_be.motor.planet import PlanetRepository
+from dsp_be.motor.star import StarRepository
 from dsp_be.routes.factories_dto import (
     FactoryCreateDto,
     FactoryDeleteDto,
@@ -16,11 +19,13 @@ router = APIRouter()
 
 # TODO: Errors, etc
 @router.post("/")
-async def create_factory(factory_dto: FactoryCreateDto):
-    config = (await ConfigModel.find()).to_logic()
-    star = (await StarModel.find_name(factory_dto.star_name)).to_logic()
-    planet = (await PlanetModel.find_name(factory_dto.planet_name)).to_logic(star)
-    factory_model = await FactoryModel.find_name(planet.name, factory_dto.name)
+async def create_factory(factory_dto: FactoryCreateDto, db: Any = Depends(get_db)):
+    config = (await ConfigRepository(db).find()).to_logic()
+    star = (await StarRepository(db).find_name(factory_dto.star_name)).to_logic()
+    planet = (await PlanetRepository(db).find_name(factory_dto.planet_name)).to_logic(
+        star
+    )
+    factory_model = await FactoryRepository(db).find_name(planet.name, factory_dto.name)
     if factory_model is not None:
         raise HTTPException(
             status_code=400,
@@ -34,15 +39,17 @@ async def create_factory(factory_dto: FactoryCreateDto):
         planet=planet,
         config=config,
     )
-    await FactoryModel.create(factory)
+    await FactoryRepository(db).create(factory)
 
 
 @router.put("/")
-async def update_factory(factory_dto: FactoryUpdateDto):
-    config = (await ConfigModel.find()).to_logic()
-    star = (await StarModel.find_name(factory_dto.star_name)).to_logic()
-    planet = (await PlanetModel.find_name(factory_dto.planet_name)).to_logic(star)
-    factory_model = await FactoryModel.find(factory_dto.id)
+async def update_factory(factory_dto: FactoryUpdateDto, db: Any = Depends(get_db)):
+    config = (await ConfigRepository(db).find()).to_logic()
+    star = (await StarRepository(db).find_name(factory_dto.star_name)).to_logic()
+    planet = (await PlanetRepository(db).find_name(factory_dto.planet_name)).to_logic(
+        star
+    )
+    factory_model = await FactoryRepository(db).find(factory_dto.id)
     if factory_model is None:
         raise HTTPException(
             status_code=400,
@@ -57,9 +64,9 @@ async def update_factory(factory_dto: FactoryUpdateDto):
         planet=planet,
         config=config,
     )
-    await FactoryModel.update(factory)
+    await FactoryRepository(db).update(factory)
 
 
 @router.delete("/")
-async def delete_factory(factory_dto: FactoryDeleteDto):
-    await FactoryModel.delete(factory_dto.id)
+async def delete_factory(factory_dto: FactoryDeleteDto, db: Any = Depends(get_db)):
+    await FactoryRepository(db).delete(factory_dto.id)

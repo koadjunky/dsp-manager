@@ -4,7 +4,6 @@ from typing import Any, Dict, Optional
 from fastapi.encoders import jsonable_encoder
 
 from dsp_be.logic.config import Config
-from dsp_be.motor.driver import db
 
 
 @dataclass
@@ -25,21 +24,23 @@ class ConfigModel:
         model = ConfigModel(veins_utilization=document["veins_utilization"])
         return model
 
-    @classmethod
-    async def create(cls, config: Config) -> None:
-        model = ConfigModel.from_logic(config)
-        await db.config.insert_one(jsonable_encoder(model))
 
-    @classmethod
-    async def update(cls, config: Config) -> None:
+class ConfigRepository:
+    def __init__(self, db: Any) -> None:
+        self.db = db
+
+    async def create(self, config: Config) -> None:
         model = ConfigModel.from_logic(config)
-        model_db = await db.config.find_one()
+        await self.db.config.insert_one(jsonable_encoder(model))
+
+    async def update(self, config: Config) -> None:
+        model = ConfigModel.from_logic(config)
+        model_db = await self.db.config.find_one()
         _id = model_db["_id"]
-        await db.config.update_one({"_id": _id}, {"$set": jsonable_encoder(model)})
+        await self.db.config.update_one({"_id": _id}, {"$set": jsonable_encoder(model)})
 
-    @classmethod
-    async def find(cls) -> Optional["ConfigModel"]:
-        doc = await db.config.find_one()
+    async def find(self) -> Optional["ConfigModel"]:
+        doc = await self.db.config.find_one()
         if doc is None:
             return None
         return ConfigModel.from_dict(doc)

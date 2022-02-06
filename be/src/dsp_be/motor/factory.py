@@ -6,7 +6,6 @@ from fastapi.encoders import jsonable_encoder
 from dsp_be.logic.config import Config
 from dsp_be.logic.factory import Factory
 from dsp_be.logic.planet import Planet
-from dsp_be.motor.driver import db
 
 
 @dataclass
@@ -54,43 +53,44 @@ class FactoryModel:
         )
         return model
 
-    @classmethod
-    async def create(cls, factory: Factory) -> None:
-        model = FactoryModel.from_logic(factory)
-        await db.factory.insert_one(jsonable_encoder(model))
 
-    @classmethod
-    async def update(cls, factory: Factory) -> None:
+class FactoryRepository:
+    def __init__(self, db: Any):
+        self.db = db
+
+    async def create(self, factory: Factory) -> None:
         model = FactoryModel.from_logic(factory)
-        model_db = await db.factory.find_one({"id": model.id})
+        await self.db.factory.insert_one(jsonable_encoder(model))
+
+    async def update(self, factory: Factory) -> None:
+        model = FactoryModel.from_logic(factory)
+        model_db = await self.db.factory.find_one({"id": model.id})
         _id = model_db["_id"]
-        await db.factory.update_one({"_id": _id}, {"$set": jsonable_encoder(model)})
+        await self.db.factory.update_one(
+            {"_id": _id}, {"$set": jsonable_encoder(model)}
+        )
 
-    @classmethod
-    async def list(cls, planet_name: str) -> List["FactoryModel"]:
+    async def list(self, planet_name: str) -> List["FactoryModel"]:
         return [
             FactoryModel.from_dict(doc)
-            async for doc in db.factory.find({"planet_name": planet_name})
+            async for doc in self.db.factory.find({"planet_name": planet_name})
         ]
 
-    @classmethod
     async def find_name(
-        cls, planet_name: str, factory_name: str
+        self, planet_name: str, factory_name: str
     ) -> Optional["FactoryModel"]:
-        doc = await db.factory.find_one(
+        doc = await self.db.factory.find_one(
             {"planet_name": planet_name, "name": factory_name}
         )
         if doc is None:
             return None
         return FactoryModel.from_dict(doc)
 
-    @classmethod
-    async def find(cls, factory_id: str) -> Optional["FactoryModel"]:
-        doc = await db.factory.find_one({"id": factory_id})
+    async def find(self, factory_id: str) -> Optional["FactoryModel"]:
+        doc = await self.db.factory.find_one({"id": factory_id})
         if doc is None:
             return None
         return FactoryModel.from_dict(doc)
 
-    @classmethod
-    async def delete(cls, factory_id: str) -> None:
-        await db.factory.delete_many({"id": factory_id})
+    async def delete(self, factory_id: str) -> None:
+        await self.db.factory.delete_many({"id": factory_id})

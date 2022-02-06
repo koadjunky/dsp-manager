@@ -7,46 +7,50 @@ from dsp_be.logic.config import Config
 from dsp_be.logic.factory import Factory
 from dsp_be.logic.planet import Planet
 from dsp_be.logic.star import Star
-from dsp_be.motor.config import ConfigModel
-from dsp_be.motor.factory import FactoryModel
-from dsp_be.motor.planet import PlanetModel
-from dsp_be.motor.star import StarModel
+from dsp_be.motor.config import ConfigRepository
+from dsp_be.motor.driver import close_db, connect_db, get_db
+from dsp_be.motor.factory import FactoryRepository
+from dsp_be.motor.planet import PlanetRepository
+from dsp_be.motor.star import StarRepository
 
 
 def start_app_handler(app: FastAPI) -> Callable:
     async def update_or_create_factory(factory: Factory):
-        factory_db = await FactoryModel.find_name(factory.planet_name, factory.name)
+        factory_db = await FactoryRepository(get_db()).find_name(
+            factory.planet_name, factory.name
+        )
         if factory_db is not None:
             factory.id = factory_db.id
-            await FactoryModel.update(factory)
+            await FactoryRepository(get_db()).update(factory)
         else:
-            await FactoryModel.create(factory)
+            await FactoryRepository(get_db()).create(factory)
 
     async def update_or_create_planet(planet: Planet):
-        planet_db = await PlanetModel.find_name(planet.name)
+        planet_db = await PlanetRepository(get_db()).find_name(planet.name)
         if planet_db is not None:
             planet.id = planet_db.id
-            await PlanetModel.update(planet)
+            await PlanetRepository(get_db()).update(planet)
         else:
-            await PlanetModel.create(planet)
+            await PlanetRepository(get_db()).create(planet)
 
     async def update_or_create_star(star: Star):
-        star_db = await StarModel.find_name(star.name)
+        star_db = await StarRepository(get_db()).find_name(star.name)
         if star_db is not None:
             star.id = star_db.id
-            await StarModel.update(star)
+            await StarRepository(get_db()).update(star)
         else:
-            await StarModel.create(star)
+            await StarRepository(get_db()).create(star)
 
     async def update_or_create_config(config: Config):
-        config_db = await ConfigModel.find()
+        config_db = await ConfigRepository(get_db()).find()
         if config_db is not None:
-            await ConfigModel.update(config)
+            await ConfigRepository(get_db()).update(config)
         else:
-            await ConfigModel.create(config)
+            await ConfigRepository(get_db()).create(config)
 
     async def startup() -> None:
         logger.info("Running app start handler.")
+        connect_db()
         config = Config()
         await update_or_create_config(config)
         sun = Star(
@@ -153,7 +157,8 @@ def start_app_handler(app: FastAPI) -> Callable:
 
 
 def stop_app_handler(app: FastAPI) -> Callable:
-    def shutdown() -> None:
+    async def shutdown() -> None:
         logger.info("Running app shutdown handler.")
+        close_db()
 
     return shutdown

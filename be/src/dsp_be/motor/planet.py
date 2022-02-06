@@ -5,7 +5,6 @@ from fastapi.encoders import jsonable_encoder
 
 from dsp_be.logic.planet import Planet
 from dsp_be.logic.star import Star
-from dsp_be.motor.driver import db
 
 
 @dataclass
@@ -52,39 +51,38 @@ class PlanetModel:
         )
         return model
 
-    @classmethod
-    async def create(cls, planet: Planet) -> None:
-        model = PlanetModel.from_logic(planet)
-        await db.planet.insert_one(jsonable_encoder(model))
 
-    @classmethod
-    async def update(cls, planet: Planet) -> None:
+class PlanetRepository:
+    def __init__(self, db: Any):
+        self.db = db
+
+    async def create(self, planet: Planet) -> None:
         model = PlanetModel.from_logic(planet)
-        model_db = await db.planet.find_one({"id": model.id})
+        await self.db.planet.insert_one(jsonable_encoder(model))
+
+    async def update(self, planet: Planet) -> None:
+        model = PlanetModel.from_logic(planet)
+        model_db = await self.db.planet.find_one({"id": model.id})
         _id = model_db["_id"]
-        await db.planet.update_one({"_id": _id}, {"$set": jsonable_encoder(model)})
+        await self.db.planet.update_one({"_id": _id}, {"$set": jsonable_encoder(model)})
 
-    @classmethod
-    async def list(cls, star_name: str) -> List["PlanetModel"]:
+    async def list(self, star_name: str) -> List["PlanetModel"]:
         return [
             PlanetModel.from_dict(doc)
-            async for doc in db.planet.find({"star_name": star_name})
+            async for doc in self.db.planet.find({"star_name": star_name})
         ]
 
-    @classmethod
-    async def find(cls, planet_id: str) -> Optional["PlanetModel"]:
-        doc = await db.planet.find_one({"id": planet_id})
+    async def find(self, planet_id: str) -> Optional["PlanetModel"]:
+        doc = await self.db.planet.find_one({"id": planet_id})
         if doc is None:
             return None
         return PlanetModel.from_dict(doc)
 
-    @classmethod
-    async def find_name(cls, planet_name: str) -> Optional["PlanetModel"]:
-        doc = await db.planet.find_one({"name": planet_name})
+    async def find_name(self, planet_name: str) -> Optional["PlanetModel"]:
+        doc = await self.db.planet.find_one({"name": planet_name})
         if doc is None:
             return None
         return PlanetModel.from_dict(doc)
 
-    @classmethod
-    async def delete(cls, planet_name: str) -> None:
-        await db.planet.delete_many({"name": planet_name})
+    async def delete(self, planet_id: str) -> None:
+        await self.db.planet.delete_many({"id": planet_id})

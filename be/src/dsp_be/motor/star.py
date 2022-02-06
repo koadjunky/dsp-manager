@@ -4,7 +4,6 @@ from typing import Any, Dict, List, Optional
 from fastapi.encoders import jsonable_encoder
 
 from dsp_be.logic.star import Star
-from dsp_be.motor.driver import db
 
 
 @dataclass
@@ -43,32 +42,35 @@ class StarModel:
         )
         return model
 
-    @classmethod
-    async def create(cls, star: Star) -> None:
-        model = StarModel.from_logic(star)
-        await db.star.insert_one(jsonable_encoder(model))
 
-    @classmethod
-    async def update(cls, star: Star) -> None:
+class StarRepository:
+    def __init__(self, db: Any) -> None:
+        self.db = db
+
+    async def create(self, star: Star) -> None:
         model = StarModel.from_logic(star)
-        model_db = await db.star.find_one({"id": model.id})
+        await self.db.star.insert_one(jsonable_encoder(model))
+
+    async def update(self, star: Star) -> None:
+        model = StarModel.from_logic(star)
+        model_db = await self.db.star.find_one({"id": model.id})
         _id = model_db["_id"]
-        await db.star.update_one({"_id": _id}, {"$set": jsonable_encoder(model)})
+        await self.db.star.update_one({"_id": _id}, {"$set": jsonable_encoder(model)})
 
-    @classmethod
-    async def list(cls) -> List["StarModel"]:
-        return [StarModel.from_dict(doc) async for doc in db.star.find()]
+    async def list(self) -> List["StarModel"]:
+        return [StarModel.from_dict(doc) async for doc in self.db.star.find()]
 
-    @classmethod
-    async def find(cls, star_id: str) -> Optional["StarModel"]:
-        doc = await db.star.find_one({"id": star_id})
+    async def find(self, star_id: str) -> Optional["StarModel"]:
+        doc = await self.db.star.find_one({"id": star_id})
         if doc is None:
             return None
         return StarModel.from_dict(doc)
 
-    @classmethod
-    async def find_name(cls, star_name: str) -> Optional["StarModel"]:
-        doc = await db.star.find_one({"name": star_name})
+    async def find_name(self, star_name: str) -> Optional["StarModel"]:
+        doc = await self.db.star.find_one({"name": star_name})
         if doc is None:
             return None
         return StarModel.from_dict(doc)
+
+    async def delete(self, star_id: str) -> None:
+        await self.db.star.delete_many({"id": star_id})

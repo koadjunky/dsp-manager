@@ -1,10 +1,21 @@
-from fastapi import APIRouter
+from typing import Any
 
-from dsp_be.motor.config import ConfigModel
-from dsp_be.motor.factory import FactoryModel
-from dsp_be.motor.planet import PlanetModel
-from dsp_be.motor.star import StarModel
-from dsp_be.routes.stars_dto import PlanetDto, StarDto, SystemDto
+from fastapi import APIRouter, Depends, HTTPException
+from loguru import logger
+
+from dsp_be.logic.star import Star
+from dsp_be.motor.config import ConfigRepository
+from dsp_be.motor.driver import get_db
+from dsp_be.motor.factory import FactoryRepository
+from dsp_be.motor.planet import PlanetRepository
+from dsp_be.motor.star import StarRepository
+from dsp_be.routes.stars_dto import (
+    PlanetDto,
+    StarCreateDto,
+    StarDto,
+    StarUpdateDto,
+    SystemDto,
+)
 
 router = APIRouter()
 
@@ -16,13 +27,15 @@ router = APIRouter()
     description="Return list of all recorded star systems.",
     response_description="Return list of all recorded star systems.",
 )
-async def get_stars() -> SystemDto:
-    config = (await ConfigModel.find()).to_logic()
-    stars = [model.to_logic() for model in await StarModel.list()]
+async def get_stars(db: Any = Depends(get_db)) -> SystemDto:
+    config = (await ConfigRepository(db).find()).to_logic()
+    stars = [model.to_logic() for model in await StarRepository(db).list()]
     for star in stars:
-        planets = [model.to_logic(star) for model in await PlanetModel.list(star.name)]
+        planets = [
+            model.to_logic(star) for model in await PlanetRepository(db).list(star.name)
+        ]
         for planet in planets:
-            for model in await FactoryModel.list(planet.name):
+            for model in await FactoryRepository(db).list(planet.name):
                 model.to_logic(planet, config)
     return SystemDto.from_logic(stars)
 
@@ -34,12 +47,17 @@ async def get_stars() -> SystemDto:
     description="Return list of all recorded star systems.",
     response_description="Return list of all recorded star systems.",
 )
-async def get_star(star_name: str) -> StarDto:
-    config = (await ConfigModel.find()).to_logic()
-    star = (await StarModel.find_name(star_name)).to_logic()
-    planets = [model.to_logic(star) for model in await PlanetModel.list(star_name)]
+async def get_star(star_name: str, db: Any = Depends(get_db)) -> StarDto:
+    config = (await ConfigRepository(db).find()).to_logic()
+    star_model = await StarRepository(db).find_name(star_name)
+    if star_model is None:
+        raise HTTPException(status_code=400, detail=f"Star {star_name} doesn't exist")
+    star = star_model.to_logic()
+    planets = [
+        model.to_logic(star) for model in await PlanetRepository(db).list(star_name)
+    ]
     for planet in planets:
-        for model in await FactoryModel.list(planet.name):
+        for model in await FactoryRepository(db).list(planet.name):
             model.to_logic(planet, config)
     return StarDto.from_logic(star)
 
@@ -51,10 +69,50 @@ async def get_star(star_name: str) -> StarDto:
     description="Return planet with all factories.",
     response_description="Return planet with all factories.",
 )
-async def get_planet(star_name: str, planet_name: str) -> PlanetDto:
-    config = (await ConfigModel.find()).to_logic()
-    star = (await StarModel.find_name(star_name)).to_logic()
-    planet = (await PlanetModel.find(planet_name)).to_logic(star)
-    for model in await FactoryModel.list(planet.name):
+async def get_planet(
+    star_name: str, planet_name: str, db: Any = Depends(get_db)
+) -> PlanetDto:
+    config = (await ConfigRepository(db).find()).to_logic()
+    star = (await StarRepository(db).find_name(star_name)).to_logic()
+    planet = (await PlanetRepository(db).find(planet_name)).to_logic(star)
+    for model in await FactoryRepository(db).list(planet.name):
         model.to_logic(planet, config)
     return PlanetDto.from_logic(planet)
+
+
+@router.post("/")
+async def create_star(star_dto: StarCreateDto, db: Any = Depends(get_db)):
+    logger.info(f"Creating star {star_dto.name}")
+    star_name = await StarRepository(db).find_name(star_dto.name)
+    if star_name is not None:
+        raise HTTPException(
+            status_code=400, detail=f"Star {star_dto.name} already exists"
+        )
+    star = Star(
+        name=star_dto.name,
+        imports=star_dto.imports,
+        exports=star_dto.exports,
+    )
+    await StarRepository(db).create(star)
+
+
+@router.put("/")
+async def update_star(star_dto: StarUpdateDto, db: Any = Depends(get_db)):
+    star_name = await StarRepository(db).find_name(star_dto.name)
+    if star_name is not None and star_dto.id != star_name.id:
+        raise HTTPException(
+            status_code=400, detail=f"Star {star_dto.name} already exists"
+        )
+    star = Star(
+        id=star_dto.id,
+        name=star_dto.name,
+        imports=star_dto.imports,
+        exports=star_dto.exports,
+    )
+    await StarRepository(db).update(star)
+
+
+@router.delete("/{star_id}")
+async def delete_star(star_id: str, db: Any = Depends(get_db)):
+    logger.info(f"Deleting star {star_id}")
+    await StarRepository(db).delete(star_id)

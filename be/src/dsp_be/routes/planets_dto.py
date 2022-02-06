@@ -17,4 +17,4 @@ class PlanetUpdateDto(PlanetCreateDto):
 
 
 class PlanetDeleteDto(BaseModel):
-    name: str
+    id: str
