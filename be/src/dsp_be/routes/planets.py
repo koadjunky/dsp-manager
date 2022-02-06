@@ -11,11 +11,16 @@ router = APIRouter()
 @router.post("/")
 async def create_planet(planet_dto: PlanetCreateDto):
     star = (await StarModel.find_name(planet_dto.star_name)).to_logic()
-    planet_model = await PlanetModel.find(planet_dto.name)
-    if planet_model is not None:
+    if star is None:
         raise HTTPException(
             status_code=400,
-            detail=f"Planet {planet_dto.name} already exists",
+            detail=f"Star {planet_dto.star_name} does not exist"
+        )
+    planet_name = (await PlanetModel.find_name(planet_dto.name))
+    if planet_name is not None:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Planet {planet_dto.name} already exists"
         )
     planet = Planet(
         name=planet_dto.name,
@@ -28,16 +33,25 @@ async def create_planet(planet_dto: PlanetCreateDto):
 
 
 # TODO: Make id key for planets
-# TODO: Names must be unique
-# TODO: Verify, that star is present
 @router.put("/")
 async def update_planet(planet_dto: PlanetUpdateDto):
     star = (await StarModel.find_name(planet_dto.star_name)).to_logic()
+    if star is None:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Star {planet_dto.star_name} does not exist"
+        )
     planet_model = (await PlanetModel.find(planet_dto.id)).to_logic(star)
     if planet_model is None:
         raise HTTPException(
             status_code=400,
             detail=f"Planet {planet_dto.id} does not exist",
+        )
+    planet_name = (await PlanetModel.find_name(planet_dto.name))
+    if planet_name is not None and planet_name.id != planet_dto.id:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Duplicated planet name {planet_dto.name}"
         )
     planet = Planet(
         id=planet_dto.id,
