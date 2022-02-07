@@ -1,6 +1,7 @@
 import copy
+import functools
 from dataclasses import dataclass
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Set
 
 from dsp_be.logic.config import Config
 from dsp_be.logic.machine import Machine
@@ -18,6 +19,9 @@ class Recipe:
     ) -> Stack:
         pass
 
+    def resources(self) -> Set[str]:
+        pass
+
 
 @dataclass
 class FractinatorRecipe(Recipe):
@@ -31,6 +35,9 @@ class FractinatorRecipe(Recipe):
         stack.add("deuterium", machine.speed * (1.0 - (0.99 ** count)))
         stack.add("hydrogen", -machine.speed * (1.0 - (0.99 ** count)))
         return stack
+
+    def resources(self) -> Set[str]:
+        return {"hydrogen", "deuterium"}
 
 
 @dataclass
@@ -48,6 +55,9 @@ class PumpRecipe(Recipe):
         )
         return stack
 
+    def resources(self) -> Set[str]:
+        return {self.product}
+
 
 @dataclass
 class OilRecipe(Recipe):
@@ -63,6 +73,9 @@ class OilRecipe(Recipe):
             "crude_oil", count * machine.speed * (1 + 0.1 * config.veins_utilization)
         )
         return stack
+
+    def resources(self) -> Set[str]:
+        return {"crude_oil"}
 
 
 @dataclass
@@ -105,6 +118,9 @@ class CollectorRecipe(Recipe):
         stack.add("deuterium", (deuterium_power - deuterium_fraction * power) / 9.0)
         return stack
 
+    def resources(self) -> Set[str]:
+        return {"fire_ice", "hydrogen", "deuterium"}
+
 
 @dataclass
 class MineRecipe(Recipe):
@@ -118,6 +134,9 @@ class MineRecipe(Recipe):
         stack = Stack()
         stack.add(self.product, 0.5 * count * (1 + 0.1 * config.veins_utilization))
         return stack
+
+    def resources(self) -> Set[str]:
+        return {self.product}
 
 
 mine_recipes_txt = [
@@ -154,6 +173,9 @@ class FactoryRecipe(Recipe):
         for name, value in self.raws.items():
             stack.add(name, -value * count * machine.speed / self.time)
         return stack
+
+    def resources(self) -> Set[str]:
+        return self.products.keys() | self.raws.keys()
 
 
 factory_recipes_txt: List[Dict[str, Any]] = [
@@ -688,11 +710,16 @@ class RecipeBook:
             raise Exception(f"Duplicate recipe name {recipe.name}")
         self.recipes[recipe.name] = recipe
 
-    def get(self, name):
+    def get(self, name) -> Recipe:
         return self.recipes[name]
 
-    def has(self, name):
+    def has(self, name) -> bool:
         return name in self.recipes
+
+    def resources(self) -> Set[str]:
+        return functools.reduce(
+            lambda a, b: a | b.resources(), self.recipes.values(), set()
+        )
 
 
 def load_recipes() -> RecipeBook:
@@ -716,6 +743,7 @@ def load_recipes() -> RecipeBook:
 
 
 recipes = load_recipes()
+resources = recipes.resources()
 
 
 if __name__ == "__main__":

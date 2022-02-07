@@ -1,8 +1,9 @@
 from typing import Any, AsyncGenerator, Callable, List
+from unittest.mock import ANY
 
-import httpx
 import pytest
 from fastapi import FastAPI
+from httpx import AsyncClient
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 from requests import Response
 
@@ -40,12 +41,12 @@ async def app(override_get_db: Callable[[], AsyncIOMotorDatabase]) -> FastAPI:
 
 @pytest.fixture()
 async def async_client(app: FastAPI) -> AsyncGenerator:
-    async with httpx.AsyncClient(app=app, base_url="http://test") as ac:
+    async with AsyncClient(app=app, base_url="http://test") as ac:
         yield ac
 
 
 async def create_star(
-    client: httpx.AsyncClient,
+    client: AsyncClient,
     name: str,
     imports: List[str] = None,
     exports: List[str] = None,
@@ -56,12 +57,12 @@ async def create_star(
     return await client.post("/dsp/api/stars/", json=request)
 
 
-async def read_star(client: httpx.AsyncClient, name: str) -> Response:
+async def read_star(client: AsyncClient, name: str) -> Response:
     return await client.get(f"/dsp/api/stars/{name}")
 
 
 async def update_star(
-    client: httpx.AsyncClient,
+    client: AsyncClient,
     id: str,
     name: str,
     imports: List[str] = None,
@@ -73,17 +74,74 @@ async def update_star(
     await client.put("/dsp/api/stars/", json=request)
 
 
-async def delete_star(client: httpx.AsyncClient, name: str) -> None:
+async def delete_star(client: AsyncClient, name: str) -> None:
     response = await read_star(client, name)
     if response.status_code != 200:
         return
     star = response.json()
+    if "id" not in star:
+        return
     id = star["id"]
     await client.delete(f"/dsp/api/stars/{id}")
 
 
+TEST_STAR = "Test Star"
+
+
 @pytest.mark.anyio
-async def test_create_star(async_client: httpx.AsyncClient) -> None:
-    await delete_star(async_client, "Test Star")
-    response = await create_star(async_client, "Test Star")
+async def test_create_star(async_client: AsyncClient) -> None:
+    await delete_star(async_client, TEST_STAR)
+    response = await create_star(async_client, TEST_STAR)
     assert response.status_code == 200
+    response = await read_star(async_client, TEST_STAR)
+    assert response.status_code == 200
+    assert response.json() == {"name": TEST_STAR, "planets": [], "trade": {}, "id": ANY}
+    await delete_star(async_client, TEST_STAR)
+
+
+@pytest.mark.anyio
+async def test_create_star_duplicate_name(async_client: AsyncClient) -> None:
+    await delete_star(async_client, TEST_STAR)
+    await create_star(async_client, TEST_STAR, imports=["iron_ingot"])
+    response = await create_star(async_client, TEST_STAR)
+    assert response.status_code != 200
+    await delete_star(async_client, TEST_STAR)
+
+
+@pytest.mark.anyio
+async def test_create_star_empty_name(async_client: AsyncClient) -> None:
+    await delete_star(async_client, "")
+    response = await create_star(async_client, "")
+    assert response.status_code != 200
+    await delete_star(async_client, "")
+
+
+@pytest.mark.anyio
+async def test_create_star_import_export(async_client: AsyncClient) -> None:
+    await delete_star(async_client, TEST_STAR)
+    response = await create_star(
+        async_client, TEST_STAR, imports=["iron_ingot"], exports=["copper_ingot"]
+    )
+    assert response.status_code == 200
+    response = await read_star(async_client, TEST_STAR)
+    assert response.status_code == 200
+    assert response.json() == {"name": TEST_STAR, "planets": [], "trade": {}, "id": ANY}
+    await delete_star(async_client, TEST_STAR)
+
+
+@pytest.mark.anyio
+async def test_create_star_wrong_imports(async_client: AsyncClient) -> None:
+    await delete_star(async_client, TEST_STAR)
+    response = await create_star(async_client, TEST_STAR, imports=["bad_resource"])
+    assert response.status_code != 200
+    response = await read_star(async_client, TEST_STAR)
+    assert response.status_code != 200
+
+
+@pytest.mark.anyio
+async def test_create_star_wrong_exports(async_client: AsyncClient) -> None:
+    await delete_star(async_client, TEST_STAR)
+    response = await create_star(async_client, TEST_STAR, exports=["bad_resource"])
+    assert response.status_code != 200
+    response = await read_star(async_client, TEST_STAR)
+    assert response.status_code != 200
