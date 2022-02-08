@@ -50,6 +50,8 @@ class PlanetDto(BaseModel):
 class StarDto(BaseModel):
     id: str
     name: str
+    imports: List[str]
+    exports: List[str]
     trade: Dict[str, float]
     planets: List[PlanetDto]
 
@@ -59,6 +61,8 @@ class StarDto(BaseModel):
         dto = StarDto(
             id=star.id,
             name=star.name,
+            imports=star.imports,
+            exports=star.exports,
             trade=star.trade().to_dict(),
             planets=planets,
         )

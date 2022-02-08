@@ -95,7 +95,7 @@ async def test_create_star(async_client: AsyncClient) -> None:
     assert response.status_code == 200
     response = await read_star(async_client, TEST_STAR)
     assert response.status_code == 200
-    assert response.json() == {"name": TEST_STAR, "planets": [], "trade": {}, "id": ANY}
+    assert response.json() == {"name": TEST_STAR, "imports": [], "exports": [], "planets": [], "trade": {}, "id": ANY}
     await delete_star(async_client, TEST_STAR)
 
 
@@ -105,6 +105,9 @@ async def test_create_star_duplicate_name(async_client: AsyncClient) -> None:
     await create_star(async_client, TEST_STAR, imports=["iron_ingot"])
     response = await create_star(async_client, TEST_STAR)
     assert response.status_code != 200
+    response = await read_star(async_client, TEST_STAR)
+    assert response.status_code == 200
+    assert response.json() == {"name": TEST_STAR, "imports": ["iron_ingot"], "exports": [], "planets": [], "trade": {}, "id": ANY}
     await delete_star(async_client, TEST_STAR)
 
 
@@ -125,7 +128,7 @@ async def test_create_star_import_export(async_client: AsyncClient) -> None:
     assert response.status_code == 200
     response = await read_star(async_client, TEST_STAR)
     assert response.status_code == 200
-    assert response.json() == {"name": TEST_STAR, "planets": [], "trade": {}, "id": ANY}
+    assert response.json() == {"name": TEST_STAR, "imports": ["iron_ingot"], "exports": ["copper_ingot"], "planets": [], "trade": {}, "id": ANY}
     await delete_star(async_client, TEST_STAR)
 
 
