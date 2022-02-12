@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
 from fastapi.encoders import jsonable_encoder
+from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from dsp_be.logic.config import Config
 from dsp_be.logic.factory import Factory
@@ -55,7 +56,7 @@ class FactoryModel:
 
 
 class FactoryRepository:
-    def __init__(self, db: Any):
+    def __init__(self, db: AsyncIOMotorDatabase):
         self.db = db
 
     async def create(self, factory: Factory) -> None:

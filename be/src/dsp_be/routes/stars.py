@@ -76,8 +76,20 @@ async def get_planet(
 ) -> PlanetDto:
     logger.info(f"Fetching planet {planet_name} information")
     config = (await ConfigRepository(db).find()).to_logic()
-    star = (await StarRepository(db).find_name(star_name)).to_logic()
-    planet = (await PlanetRepository(db).find(planet_name)).to_logic(star)
+    star_model = await StarRepository(db).find_name(star_name)
+    if star_model is None:
+        logger.warning(f"Star {star_name} does not exist")
+        raise HTTPException(
+            status_code=400, detail=f"Star {star_name} does not exist"
+        )
+    star = star_model.to_logic()
+    planet_model = (await PlanetRepository(db).find_name(planet_name))
+    if planet_model is None:
+        logger.warning(f"Planet {planet_name} does not exist")
+        raise HTTPException(
+            status_code=400, detail=f"Planet {planet_name} does not exist"
+        )
+    planet = planet_model.to_logic(star)
     for model in await FactoryRepository(db).list(planet.name):
         model.to_logic(planet, config)
     return PlanetDto.from_logic(planet)

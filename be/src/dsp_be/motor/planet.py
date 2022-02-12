@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
 from fastapi.encoders import jsonable_encoder
+from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from dsp_be.logic.planet import Planet
 from dsp_be.logic.star import Star
@@ -53,7 +54,7 @@ class PlanetModel:
 
 
 class PlanetRepository:
-    def __init__(self, db: Any):
+    def __init__(self, db: AsyncIOMotorDatabase):
         self.db = db
 
     async def create(self, planet: Planet) -> None:

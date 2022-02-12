@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
 from fastapi.encoders import jsonable_encoder
+from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from dsp_be.logic.star import Star
 
@@ -44,7 +45,7 @@ class StarModel:
 
 
 class StarRepository:
-    def __init__(self, db: Any) -> None:
+    def __init__(self, db: AsyncIOMotorDatabase) -> None:
         self.db = db
 
     async def create(self, star: Star) -> None:

@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import Any, Dict, Optional
 
 from fastapi.encoders import jsonable_encoder
+from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from dsp_be.logic.config import Config
 
@@ -26,7 +27,7 @@ class ConfigModel:
 
 
 class ConfigRepository:
-    def __init__(self, db: Any) -> None:
+    def __init__(self, db: AsyncIOMotorDatabase) -> None:
         self.db = db
 
     async def create(self, config: Config) -> None:

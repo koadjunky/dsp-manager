@@ -1,48 +1,9 @@
-from typing import Any, AsyncGenerator, Callable, List, Optional
+from typing import List, Optional
 from unittest.mock import ANY
 
 import pytest
-from fastapi import FastAPI
 from httpx import AsyncClient
-from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 from requests import Response
-
-from dsp_be.motor.driver import MONGODB_URL, get_db
-
-
-@pytest.fixture()
-def anyio_backend():
-    return "asyncio"
-
-
-@pytest.fixture()
-async def db_session() -> AsyncIOMotorClient:
-    yield AsyncIOMotorClient(MONGODB_URL)
-
-
-@pytest.fixture()
-def override_get_db(
-    db_session: AsyncIOMotorClient,
-) -> Callable[[], AsyncIOMotorDatabase]:
-    async def _override_get_db() -> AsyncIOMotorDatabase:
-        yield db_session.dsp_database
-
-    return _override_get_db
-
-
-@pytest.fixture()
-async def app(override_get_db: Callable[[], AsyncIOMotorDatabase]) -> FastAPI:
-    from dsp_be.main import get_app
-
-    app = get_app()
-    app.dependency_overrides[get_db] = override_get_db
-    return app
-
-
-@pytest.fixture()
-async def async_client(app: FastAPI) -> AsyncGenerator:
-    async with AsyncClient(app=app, base_url="http://test") as ac:
-        yield ac
 
 
 async def create_star(
@@ -50,7 +11,7 @@ async def create_star(
     name: str,
     imports: List[str] = None,
     exports: List[str] = None,
-) -> Any:
+) -> Response:
     imports_list = imports if imports is not None else []
     exports_list = exports if exports is not None else []
     request = {"name": name, "imports": imports_list, "exports": exports_list}
@@ -90,12 +51,11 @@ async def delete_star_id(client: AsyncClient, id_: str) -> Response:
 
 
 TEST_STAR = "Test Star"
-TEST_STAR_1 = "Test Star 1"
+TEST_STAR_1 = "Other Star"
 
 
 @pytest.mark.anyio
 async def test_create_star(async_client: AsyncClient) -> None:
-    await delete_star(async_client, TEST_STAR)
     response = await create_star(async_client, TEST_STAR)
     assert response.status_code == 200
     response = await read_star(async_client, TEST_STAR)
@@ -108,12 +68,10 @@ async def test_create_star(async_client: AsyncClient) -> None:
         "trade": {},
         "id": ANY,
     }
-    await delete_star(async_client, TEST_STAR)
 
 
 @pytest.mark.anyio
 async def test_create_star_duplicate_name(async_client: AsyncClient) -> None:
-    await delete_star(async_client, TEST_STAR)
     await create_star(async_client, TEST_STAR, imports=["iron_ingot"])
     response = await create_star(async_client, TEST_STAR)
     assert response.status_code != 200
@@ -127,20 +85,16 @@ async def test_create_star_duplicate_name(async_client: AsyncClient) -> None:
         "trade": {},
         "id": ANY,
     }
-    await delete_star(async_client, TEST_STAR)
 
 
 @pytest.mark.anyio
 async def test_create_star_empty_name(async_client: AsyncClient) -> None:
-    await delete_star(async_client, "")
     response = await create_star(async_client, "")
     assert response.status_code != 200
-    await delete_star(async_client, "")
 
 
 @pytest.mark.anyio
 async def test_create_star_import_export(async_client: AsyncClient) -> None:
-    await delete_star(async_client, TEST_STAR)
     response = await create_star(
         async_client, TEST_STAR, imports=["iron_ingot"], exports=["copper_ingot"]
     )
@@ -155,12 +109,10 @@ async def test_create_star_import_export(async_client: AsyncClient) -> None:
         "trade": {},
         "id": ANY,
     }
-    await delete_star(async_client, TEST_STAR)
 
 
 @pytest.mark.anyio
 async def test_create_star_wrong_imports(async_client: AsyncClient) -> None:
-    await delete_star(async_client, TEST_STAR)
     response = await create_star(async_client, TEST_STAR, imports=["bad_resource"])
     assert response.status_code != 200
     response = await read_star(async_client, TEST_STAR)
@@ -169,7 +121,6 @@ async def test_create_star_wrong_imports(async_client: AsyncClient) -> None:
 
 @pytest.mark.anyio
 async def test_create_star_wrong_exports(async_client: AsyncClient) -> None:
-    await delete_star(async_client, TEST_STAR)
     response = await create_star(async_client, TEST_STAR, exports=["bad_resource"])
     assert response.status_code != 200
     response = await read_star(async_client, TEST_STAR)
@@ -178,8 +129,6 @@ async def test_create_star_wrong_exports(async_client: AsyncClient) -> None:
 
 @pytest.mark.anyio
 async def test_update_star(async_client: AsyncClient) -> None:
-    await delete_star(async_client, TEST_STAR)
-    await delete_star(async_client, TEST_STAR_1)
     await create_star(async_client, TEST_STAR)
     response = await read_star(async_client, TEST_STAR)
     id_ = response.json()["id"]
@@ -201,13 +150,10 @@ async def test_update_star(async_client: AsyncClient) -> None:
         "trade": {},
         "id": ANY,
     }
-    await delete_star(async_client, TEST_STAR_1)
 
 
 @pytest.mark.anyio
 async def test_update_star_duplicate_name(async_client: AsyncClient) -> None:
-    await delete_star(async_client, TEST_STAR)
-    await delete_star(async_client, TEST_STAR_1)
     await create_star(async_client, TEST_STAR_1)
     await create_star(async_client, TEST_STAR, imports=["iron_ingot"])
     response = await read_star(async_client, TEST_STAR)
@@ -240,14 +186,10 @@ async def test_update_star_duplicate_name(async_client: AsyncClient) -> None:
         "trade": {},
         "id": ANY,
     }
-    await delete_star(async_client, TEST_STAR)
-    await delete_star(async_client, TEST_STAR_1)
 
 
 @pytest.mark.anyio
 async def test_update_star_empty_name(async_client: AsyncClient) -> None:
-    await delete_star(async_client, TEST_STAR)
-    await delete_star(async_client, "")
     await create_star(async_client, TEST_STAR)
     response = await read_star(async_client, TEST_STAR)
     id_ = response.json()["id"]
@@ -265,13 +207,10 @@ async def test_update_star_empty_name(async_client: AsyncClient) -> None:
         "trade": {},
         "id": ANY,
     }
-    await delete_star(async_client, TEST_STAR)
-    await delete_star(async_client, "")
 
 
 @pytest.mark.anyio
 async def test_update_star_wrong_imports(async_client: AsyncClient) -> None:
-    await delete_star(async_client, TEST_STAR)
     await create_star(async_client, TEST_STAR)
     response = await read_star(async_client, TEST_STAR)
     id_ = response.json()["id"]
@@ -289,12 +228,10 @@ async def test_update_star_wrong_imports(async_client: AsyncClient) -> None:
         "trade": {},
         "id": ANY,
     }
-    await delete_star(async_client, TEST_STAR)
 
 
 @pytest.mark.anyio
 async def test_update_star_wrong_exports(async_client: AsyncClient) -> None:
-    await delete_star(async_client, TEST_STAR)
     await create_star(async_client, TEST_STAR)
     response = await read_star(async_client, TEST_STAR)
     id_ = response.json()["id"]
@@ -312,12 +249,10 @@ async def test_update_star_wrong_exports(async_client: AsyncClient) -> None:
         "trade": {},
         "id": ANY,
     }
-    await delete_star(async_client, TEST_STAR)
 
 
 @pytest.mark.anyio
 async def test_delete_star(async_client: AsyncClient) -> None:
-    await delete_star(async_client, TEST_STAR)
     await create_star(async_client, TEST_STAR)
     response = await read_star(async_client, TEST_STAR)
     assert response.status_code == 200
@@ -330,7 +265,6 @@ async def test_delete_star(async_client: AsyncClient) -> None:
 
 @pytest.mark.anyio
 async def test_delete_not_existing_star(async_client: AsyncClient) -> None:
-    await delete_star(async_client, TEST_STAR)
     await create_star(async_client, TEST_STAR)
     response = await read_star(async_client, TEST_STAR)
     assert response.status_code == 200

@@ -32,6 +32,10 @@ class FactoryDto(BaseModel):
 class PlanetDto(BaseModel):
     id: str
     name: str
+    star_name: str
+    exports: List[str]
+    imports: List[str]
+    resources: Dict[str, float]
     trade: Dict[str, float]
     factories: List[FactoryDto]
 
@@ -41,6 +45,10 @@ class PlanetDto(BaseModel):
         dto = PlanetDto(
             id=planet.id,
             name=planet.name,
+            star_name=planet.star_name,
+            imports=planet.imports,
+            exports=planet.exports,
+            resources=planet.resources,
             trade=planet.trade().to_dict(),
             factories=factories,
         )
