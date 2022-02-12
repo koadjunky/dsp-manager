@@ -1,4 +1,4 @@
-from typing import Any, AsyncGenerator, Callable, List
+from typing import Any, AsyncGenerator, Callable, List, Optional
 from unittest.mock import ANY
 
 import pytest
@@ -74,15 +74,19 @@ async def update_star(
     return await client.put("/dsp/api/stars/", json=request)
 
 
-async def delete_star(client: AsyncClient, name: str) -> None:
+async def delete_star(client: AsyncClient, name: str) -> Optional[Response]:
     response = await read_star(client, name)
     if response.status_code != 200:
-        return
+        return None
     star = response.json()
     if "id" not in star:
-        return
-    id = star["id"]
-    await client.delete(f"/dsp/api/stars/{id}")
+        return None
+    id_ = star["id"]
+    return await delete_star_id(client, id_)
+
+
+async def delete_star_id(client: AsyncClient, id_: str) -> Response:
+    return await client.delete(f"/dsp/api/stars/{id_}")
 
 
 TEST_STAR = "Test Star"
@@ -309,3 +313,29 @@ async def test_update_star_wrong_exports(async_client: AsyncClient) -> None:
         "id": ANY,
     }
     await delete_star(async_client, TEST_STAR)
+
+
+@pytest.mark.anyio
+async def test_delete_star(async_client: AsyncClient) -> None:
+    await delete_star(async_client, TEST_STAR)
+    await create_star(async_client, TEST_STAR)
+    response = await read_star(async_client, TEST_STAR)
+    assert response.status_code == 200
+    id_ = response.json()["id"]
+    response = await delete_star_id(async_client, id_)
+    assert response.status_code == 200
+    response = await read_star(async_client, TEST_STAR)
+    assert response.status_code != 200
+
+
+@pytest.mark.anyio
+async def test_delete_not_existing_star(async_client: AsyncClient) -> None:
+    await delete_star(async_client, TEST_STAR)
+    await create_star(async_client, TEST_STAR)
+    response = await read_star(async_client, TEST_STAR)
+    assert response.status_code == 200
+    id_ = response.json()["id"]
+    response = await delete_star_id(async_client, id_)
+    assert response.status_code == 200
+    response = await delete_star_id(async_client, id_)
+    assert response.status_code == 200
