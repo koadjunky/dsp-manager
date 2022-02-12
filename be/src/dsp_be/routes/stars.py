@@ -28,6 +28,7 @@ router = APIRouter()
     response_description="Return list of all recorded star systems.",
 )
 async def get_stars(db: Any = Depends(get_db)) -> SystemDto:
+    logger.info("Fetching system information")
     config = (await ConfigRepository(db).find()).to_logic()
     stars = [model.to_logic() for model in await StarRepository(db).list()]
     for star in stars:
@@ -48,6 +49,7 @@ async def get_stars(db: Any = Depends(get_db)) -> SystemDto:
     response_description="Return list of all recorded star systems.",
 )
 async def get_star(star_name: str, db: Any = Depends(get_db)) -> StarDto:
+    logger.info(f"Fetching star {star_name} information")
     config = (await ConfigRepository(db).find()).to_logic()
     star_model = await StarRepository(db).find_name(star_name)
     if star_model is None:
@@ -72,6 +74,7 @@ async def get_star(star_name: str, db: Any = Depends(get_db)) -> StarDto:
 async def get_planet(
     star_name: str, planet_name: str, db: Any = Depends(get_db)
 ) -> PlanetDto:
+    logger.info(f"Fetching planet {planet_name} information")
     config = (await ConfigRepository(db).find()).to_logic()
     star = (await StarRepository(db).find_name(star_name)).to_logic()
     planet = (await PlanetRepository(db).find(planet_name)).to_logic(star)
@@ -98,6 +101,7 @@ async def create_star(star_dto: StarCreateDto, db: Any = Depends(get_db)):
 
 @router.put("/")
 async def update_star(star_dto: StarUpdateDto, db: Any = Depends(get_db)):
+    logger.info(f"Updating star {star_dto.name}")
     star_name = await StarRepository(db).find_name(star_dto.name)
     if star_name is not None and star_dto.id != star_name.id:
         raise HTTPException(

@@ -1,6 +1,7 @@
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException
+from loguru import logger
 
 from dsp_be.logic.factory import Factory
 from dsp_be.motor.config import ConfigRepository
@@ -20,6 +21,9 @@ router = APIRouter()
 # TODO: Errors, etc
 @router.post("/")
 async def create_factory(factory_dto: FactoryCreateDto, db: Any = Depends(get_db)):
+    logger.info(
+        f"Creating factory {factory_dto.name} on planet {factory_dto.planet_name}"
+    )
     config = (await ConfigRepository(db).find()).to_logic()
     star = (await StarRepository(db).find_name(factory_dto.star_name)).to_logic()
     planet = (await PlanetRepository(db).find_name(factory_dto.planet_name)).to_logic(
@@ -44,6 +48,9 @@ async def create_factory(factory_dto: FactoryCreateDto, db: Any = Depends(get_db
 
 @router.put("/")
 async def update_factory(factory_dto: FactoryUpdateDto, db: Any = Depends(get_db)):
+    logger.info(
+        f"Updating factory {factory_dto.name} on planet {factory_dto.planet_name}"
+    )
     config = (await ConfigRepository(db).find()).to_logic()
     star = (await StarRepository(db).find_name(factory_dto.star_name)).to_logic()
     planet = (await PlanetRepository(db).find_name(factory_dto.planet_name)).to_logic(
@@ -69,4 +76,5 @@ async def update_factory(factory_dto: FactoryUpdateDto, db: Any = Depends(get_db
 
 @router.delete("/")
 async def delete_factory(factory_dto: FactoryDeleteDto, db: Any = Depends(get_db)):
+    logger.info(f"Deleting factory {factory_dto.id}")
     await FactoryRepository(db).delete(factory_dto.id)

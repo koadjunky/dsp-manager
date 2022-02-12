@@ -1,6 +1,7 @@
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException
+from loguru import logger
 
 from dsp_be.logic.planet import Planet
 from dsp_be.motor.driver import get_db
@@ -13,6 +14,7 @@ router = APIRouter()
 
 @router.post("/")
 async def create_planet(planet_dto: PlanetCreateDto, db: Any = Depends(get_db)):
+    logger.info(f"Creating planet {planet_dto.name}")
     star_model = await StarRepository(db).find_name(planet_dto.star_name)
     if star_model is None:
         raise HTTPException(
@@ -37,6 +39,7 @@ async def create_planet(planet_dto: PlanetCreateDto, db: Any = Depends(get_db)):
 # TODO: Make id key for planets
 @router.put("/")
 async def update_planet(planet_dto: PlanetUpdateDto, db: Any = Depends(get_db)):
+    logger.info(f"Updating planet {planet_dto.name}")
     star_model = await StarRepository(db).find_name(planet_dto.star_name)
     if star_model is None:
         raise HTTPException(
@@ -67,4 +70,5 @@ async def update_planet(planet_dto: PlanetUpdateDto, db: Any = Depends(get_db)):
 
 @router.delete("/")
 async def delete_planet(planet_dto: PlanetDeleteDto, db: Any = Depends(get_db)):
+    logger.info(f"Deleting planet {planet_dto.id}")
     await PlanetRepository(db).delete(planet_dto.id)
