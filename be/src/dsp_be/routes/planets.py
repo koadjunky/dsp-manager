@@ -14,7 +14,9 @@ router = APIRouter()
 
 @router.post("/")
 async def create_planet(planet_dto: PlanetCreateDto, db: Any = Depends(get_db)):
-    logger.info(f"Creating planet {planet_dto.name} in star system {planet_dto.star_name}")
+    logger.info(
+        f"Creating planet {planet_dto.name} in star system {planet_dto.star_name}"
+    )
     star_model = await StarRepository(db).find_name(planet_dto.star_name)
     if star_model is None:
         logger.warning(f"Star {planet_dto.star_name} does not exist")

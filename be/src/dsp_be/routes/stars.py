@@ -79,11 +79,9 @@ async def get_planet(
     star_model = await StarRepository(db).find_name(star_name)
     if star_model is None:
         logger.warning(f"Star {star_name} does not exist")
-        raise HTTPException(
-            status_code=400, detail=f"Star {star_name} does not exist"
-        )
+        raise HTTPException(status_code=400, detail=f"Star {star_name} does not exist")
     star = star_model.to_logic()
-    planet_model = (await PlanetRepository(db).find_name(planet_name))
+    planet_model = await PlanetRepository(db).find_name(planet_name)
     if planet_model is None:
         logger.warning(f"Planet {planet_name} does not exist")
         raise HTTPException(
