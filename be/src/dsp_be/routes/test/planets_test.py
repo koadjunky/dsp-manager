@@ -102,7 +102,7 @@ async def test_create_planet(async_client: AsyncClient) -> None:
 
 
 @pytest.mark.anyio
-async def test_create_star_duplicate_name(async_client: AsyncClient) -> None:
+async def test_create_planet_duplicate_name(async_client: AsyncClient) -> None:
     await create_star(async_client, TEST_STAR)
     response = await create_planet(
         async_client,
@@ -127,3 +127,10 @@ async def test_create_star_duplicate_name(async_client: AsyncClient) -> None:
         "trade": {},
         "id": ANY,
     }
+
+
+@pytest.mark.anyio
+async def test_create_planet_empty_name(async_client: AsyncClient) -> None:
+    await create_star(async_client, TEST_STAR)
+    response = await create_planet(async_client, TEST_STAR, "")
+    assert response.status_code != 200
