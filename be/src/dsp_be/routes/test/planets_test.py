@@ -134,3 +134,62 @@ async def test_create_planet_empty_name(async_client: AsyncClient) -> None:
     await create_star(async_client, TEST_STAR)
     response = await create_planet(async_client, TEST_STAR, "")
     assert response.status_code != 200
+
+
+@pytest.mark.anyio
+async def test_create_planet_import_export(async_client: AsyncClient) -> None:
+    await create_star(async_client, TEST_STAR)
+    response = await create_planet(
+        async_client,
+        TEST_STAR,
+        TEST_PLANET,
+        imports=["iron_ingot"],
+        exports=["copper_ingot"],
+        resources={"hydrogen": 10.0},
+    )
+    assert response.status_code == 200
+    response = await read_planet(async_client, TEST_STAR, TEST_PLANET)
+    assert response.status_code == 200
+    assert response.json() == {
+        "name": TEST_PLANET,
+        "star_name": TEST_STAR,
+        "imports": ["iron_ingot"],
+        "exports": ["copper_ingot"],
+        "resources": {"hydrogen": 10.0},
+        "factories": [],
+        "trade": {},
+        "id": ANY,
+    }
+
+
+@pytest.mark.anyio
+async def test_create_planet_wrong_imports(async_client: AsyncClient) -> None:
+    await create_star(async_client, TEST_STAR)
+    response = await create_planet(
+        async_client, TEST_STAR, TEST_PLANET, imports=["bad_resource"]
+    )
+    assert response.status_code != 200
+    response = await read_planet(async_client, TEST_STAR, TEST_PLANET)
+    assert response.status_code != 200
+
+
+@pytest.mark.anyio
+async def test_create_planet_wrong_exports(async_client: AsyncClient) -> None:
+    await create_star(async_client, TEST_STAR)
+    response = await create_planet(
+        async_client, TEST_STAR, TEST_PLANET, exports=["bad_resource"]
+    )
+    assert response.status_code != 200
+    response = await read_planet(async_client, TEST_STAR, TEST_PLANET)
+    assert response.status_code != 200
+
+
+@pytest.mark.anyio
+async def test_create_planet_wrong_resources(async_client: AsyncClient) -> None:
+    await create_star(async_client, TEST_STAR)
+    response = await create_planet(
+        async_client, TEST_STAR, TEST_PLANET, resources={"bad_resource": 10.0}
+    )
+    assert response.status_code != 200
+    response = await read_planet(async_client, TEST_STAR, TEST_PLANET)
+    assert response.status_code != 200

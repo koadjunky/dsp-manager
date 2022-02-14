@@ -31,10 +31,10 @@ class PlanetCreateDto(BaseModel):
         return exports
 
     @validator("resources", allow_reuse=True)
-    def resources_must_be_resources(cls, resources):
-        if not set(resources.keys()).issubset(resources):
+    def resources_must_be_resources(cls, res):
+        if not set(res.keys()).issubset(resources):
             raise ValueError("Resources must be resources")
-        return resources
+        return res
 
 
 class PlanetUpdateDto(PlanetCreateDto):
