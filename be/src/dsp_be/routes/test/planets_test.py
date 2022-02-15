@@ -5,7 +5,7 @@ import pytest
 from httpx import AsyncClient
 from requests import Response
 
-from dsp_be.routes.test.stars_test import TEST_STAR, create_star
+from dsp_be.routes.test.stars_test import TEST_STAR, TEST_STAR_1, create_star
 
 
 async def create_planet(
@@ -76,6 +76,7 @@ async def delete_planet_id(client: AsyncClient, id_: str) -> Response:
 
 
 TEST_PLANET = "Test Star 3"
+TEST_PLANET_1 = "Other Star 3"
 
 
 @pytest.mark.anyio
@@ -193,3 +194,34 @@ async def test_create_planet_wrong_resources(async_client: AsyncClient) -> None:
     assert response.status_code != 200
     response = await read_planet(async_client, TEST_STAR, TEST_PLANET)
     assert response.status_code != 200
+
+
+@pytest.mark.anyio
+async def test_update_planet(async_client: AsyncClient) -> None:
+    await create_star(async_client, TEST_STAR)
+    await create_star(async_client, TEST_STAR_1)
+    await create_planet(async_client, TEST_STAR, TEST_PLANET)
+    response = await read_planet(async_client, TEST_STAR, TEST_PLANET)
+    id_ = response.json()["id"]
+    response = await update_planet(
+        async_client,
+        id_=id_,
+        name=TEST_PLANET_1,
+        star_name=TEST_STAR_1,
+        imports=["iron_ingot"],
+        exports=["copper_ingot"],
+        resources={"deuterium": 10.0},
+    )
+    assert response.status_code == 200
+    response = await read_planet(async_client, TEST_STAR_1, TEST_PLANET_1)
+    assert response.status_code == 200
+    assert response.json() == {
+        "name": TEST_PLANET_1,
+        "star_name": TEST_STAR_1,
+        "imports": ["iron_ingot"],
+        "exports": ["copper_ingot"],
+        "resources": {"deuterium": 10.0},
+        "factories": [],
+        "trade": {},
+        "id": ANY,
+    }
