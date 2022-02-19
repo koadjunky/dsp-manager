@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional
+from typing import Dict, List
 from unittest.mock import ANY
 
 import pytest
@@ -56,19 +56,6 @@ async def update_planet(
         "exports": exports_list,
     }
     return await client.put("/dsp/api/planets/", json=request)
-
-
-async def delete_planet(
-    client: AsyncClient, star_name: str, planet_name: str
-) -> Optional[Response]:
-    response = await read_planet(client, star_name, planet_name)
-    if response.status_code != 200:
-        return None
-    planet = response.json()
-    if "id" not in planet:
-        return None
-    id_ = planet["id"]
-    return await delete_planet_id(client, id_)
 
 
 async def delete_planet_id(client: AsyncClient, id_: str) -> Response:

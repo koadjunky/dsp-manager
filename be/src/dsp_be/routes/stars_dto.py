@@ -11,6 +11,8 @@ from dsp_be.logic.star import Star
 class FactoryDto(BaseModel):
     id: str
     name: str
+    planet_name: str
+    star_name: str
     recipe: str
     machine: str
     count: int
@@ -21,6 +23,8 @@ class FactoryDto(BaseModel):
         dto = FactoryDto(
             id=factory.id,
             name=factory.name,
+            planet_name=factory.planet_name,
+            star_name=factory.planet.star_name,
             recipe=factory.recipe_name,
             machine=factory.machine_name,
             count=factory.count,

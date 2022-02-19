@@ -12,7 +12,19 @@ class FactoryCreateDto(BaseModel):
     recipe: str
     count: int
 
-    @validator("recipe")
+    @validator("name", allow_reuse=True)
+    def name_must_be_not_empty(cls, name):
+        if name == "":
+            raise ValueError("Star name must not be empty")
+        return name
+
+    @validator("count", allow_reuse=True)
+    def count_must_be_positive(cls, count):
+        if count < 1:
+            raise ValueError("Star name must not be empty")
+        return count
+
+    @validator("recipe", allow_reuse=True)
     def recipe_must_be_known_and_matching_machine(cls, recipe_name, values):
         machine_name = values["machine"]
         if not recipes.has(recipe_name):

@@ -52,6 +52,9 @@ async def fix_database(db_session: AsyncIOMotorDatabase) -> AsyncGenerator:
         await db_session.dsp_database.planet.delete_many({"name": "Test Star 3"})
         await db_session.dsp_database.planet.delete_many({"name": "Other Star 3"})
         await db_session.dsp_database.planet.delete_many({"name": ""})
+        await db_session.dsp_database.factory.delete_many({"name": "Green Science #1"})
+        await db_session.dsp_database.factory.delete_many({"name": "Red Science #1"})
+        await db_session.dsp_database.factory.delete_many({"name": ""})
 
     await cleanup()
     yield
