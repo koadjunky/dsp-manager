@@ -39,7 +39,3 @@ class PlanetCreateDto(BaseModel):
 
 class PlanetUpdateDto(PlanetCreateDto):
     id: str
-
-
-class PlanetDeleteDto(BaseModel):
-    id: str

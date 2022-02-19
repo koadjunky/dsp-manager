@@ -7,7 +7,7 @@ from dsp_be.logic.planet import Planet
 from dsp_be.motor.driver import get_db
 from dsp_be.motor.planet import PlanetRepository
 from dsp_be.motor.star import StarRepository
-from dsp_be.routes.planets_dto import PlanetCreateDto, PlanetDeleteDto, PlanetUpdateDto
+from dsp_be.routes.planets_dto import PlanetCreateDto, PlanetUpdateDto
 
 router = APIRouter()
 
@@ -72,7 +72,7 @@ async def update_planet(planet_dto: PlanetUpdateDto, db: Any = Depends(get_db)):
     await PlanetRepository(db).update(planet)
 
 
-@router.delete("/")
-async def delete_planet(planet_dto: PlanetDeleteDto, db: Any = Depends(get_db)):
-    logger.info(f"Deleting planet {planet_dto.id}")
-    await PlanetRepository(db).delete(planet_dto.id)
+@router.delete("/{planet_id}")
+async def delete_planet(planet_id: str, db: Any = Depends(get_db)):
+    logger.info(f"Deleting planet {planet_id}")
+    await PlanetRepository(db).delete(planet_id)

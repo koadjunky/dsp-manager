@@ -448,3 +448,29 @@ async def test_update_planet_wrong_resources(async_client: AsyncClient) -> None:
         "trade": {},
         "id": ANY,
     }
+
+
+@pytest.mark.anyio
+async def test_delete_planet(async_client: AsyncClient) -> None:
+    await create_star(async_client, TEST_STAR)
+    await create_planet(async_client, TEST_STAR, TEST_PLANET, imports=["iron_ingot"])
+    response = await read_planet(async_client, TEST_STAR, TEST_PLANET)
+    assert response.status_code == 200
+    id_ = response.json()["id"]
+    response = await delete_planet_id(async_client, id_)
+    assert response.status_code == 200
+    response = await read_planet(async_client, TEST_STAR, TEST_PLANET)
+    assert response.status_code != 200
+
+
+@pytest.mark.anyio
+async def test_delete_not_existing_planet(async_client: AsyncClient) -> None:
+    await create_star(async_client, TEST_STAR)
+    await create_planet(async_client, TEST_STAR, TEST_PLANET, imports=["iron_ingot"])
+    response = await read_planet(async_client, TEST_STAR, TEST_PLANET)
+    assert response.status_code == 200
+    id_ = response.json()["id"]
+    response = await delete_planet_id(async_client, id_)
+    assert response.status_code == 200
+    response = await delete_planet_id(async_client, id_)
+    assert response.status_code == 200
