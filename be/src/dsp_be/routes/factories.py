@@ -18,17 +18,34 @@ from dsp_be.routes.factories_dto import (
 router = APIRouter()
 
 
-# TODO: Errors, etc
 @router.post("/")
 async def create_factory(factory_dto: FactoryCreateDto, db: Any = Depends(get_db)):
     logger.info(
         f"Creating factory {factory_dto.name} on planet {factory_dto.planet_name}"
     )
     config = (await ConfigRepository(db).find()).to_logic()
-    star = (await StarRepository(db).find_name(factory_dto.star_name)).to_logic()
-    planet = (await PlanetRepository(db).find_name(factory_dto.planet_name)).to_logic(
-        star
-    )
+    star_model = await StarRepository(db).find_name(factory_dto.star_name)
+    if star_model is None:
+        logger.warning(f"Star {factory_dto.star_name} does not exist")
+        raise HTTPException(
+            status_code=400, detail=f"Star {factory_dto.star_name} does not exist"
+        )
+    star = star_model.to_logic()
+    planet_model = await PlanetRepository(db).find_name(factory_dto.planet_name)
+    if planet_model is None:
+        logger.warning(f"Planet {factory_dto.planet_name} does not exit")
+        raise HTTPException(
+            status_code=400, detail=f"Planet {factory_dto.planet_name} does not exit"
+        )
+    if planet_model.star_name != star_model.name:
+        logger.warning(
+            f"Planet {factory_dto.planet_name} doesn't belong to star {factory_dto.star_name}"
+        )
+        raise HTTPException(
+            status_code=400,
+            detail=f"Planet {factory_dto.planet_name} doesn't belong to star {factory_dto.star_name}",
+        )
+    planet = planet_model.to_logic(star)
     factory_model = await FactoryRepository(db).find_name(planet.name, factory_dto.name)
     if factory_model is not None:
         raise HTTPException(
@@ -52,10 +69,28 @@ async def update_factory(factory_dto: FactoryUpdateDto, db: Any = Depends(get_db
         f"Updating factory {factory_dto.name} on planet {factory_dto.planet_name}"
     )
     config = (await ConfigRepository(db).find()).to_logic()
-    star = (await StarRepository(db).find_name(factory_dto.star_name)).to_logic()
-    planet = (await PlanetRepository(db).find_name(factory_dto.planet_name)).to_logic(
-        star
-    )
+    star_model = await StarRepository(db).find_name(factory_dto.star_name)
+    if star_model is None:
+        logger.warning(f"Star {factory_dto.star_name} does not exist")
+        raise HTTPException(
+            status_code=400, detail=f"Star {factory_dto.star_name} does not exist"
+        )
+    star = star_model.to_logic()
+    planet_model = await PlanetRepository(db).find_name(factory_dto.planet_name)
+    if planet_model is None:
+        logger.warning(f"Planet {factory_dto.planet_name} does not exit")
+        raise HTTPException(
+            status_code=400, detail=f"Planet {factory_dto.planet_name} does not exit"
+        )
+    if planet_model.star_name != star_model.name:
+        logger.warning(
+            f"Planet {factory_dto.planet_name} doesn't belong to star {factory_dto.star_name}"
+        )
+        raise HTTPException(
+            status_code=400,
+            detail=f"Planet {factory_dto.planet_name} doesn't belong to star {factory_dto.star_name}",
+        )
+    planet = planet_model.to_logic(star)
     factory_model = await FactoryRepository(db).find(factory_dto.id)
     if factory_model is None:
         raise HTTPException(

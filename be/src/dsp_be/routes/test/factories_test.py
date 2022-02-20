@@ -5,8 +5,8 @@ import pytest
 from httpx import AsyncClient
 from requests import Response
 
-from dsp_be.routes.test.planets_test import TEST_PLANET, create_planet
-from dsp_be.routes.test.stars_test import TEST_STAR, create_star
+from dsp_be.routes.test.planets_test import TEST_PLANET, TEST_PLANET_1, create_planet
+from dsp_be.routes.test.stars_test import TEST_STAR, TEST_STAR_1, create_star
 
 
 async def create_factory(
@@ -104,6 +104,37 @@ async def test_create_factory_empty_name(async_client: AsyncClient) -> None:
 
 
 @pytest.mark.anyio
+async def test_create_factory_wrong_star(async_client: AsyncClient) -> None:
+    await create_star(async_client, TEST_STAR)
+    await create_planet(async_client, TEST_STAR, TEST_PLANET)
+    response = await create_factory(
+        async_client, TEST_STAR_1, TEST_PLANET, TEST_FACTORY
+    )
+    assert response.status_code != 200
+
+
+@pytest.mark.anyio
+async def test_create_factory_wrong_planet(async_client: AsyncClient) -> None:
+    await create_star(async_client, TEST_STAR)
+    await create_planet(async_client, TEST_STAR, TEST_PLANET)
+    response = await create_factory(
+        async_client, TEST_STAR, TEST_PLANET_1, TEST_FACTORY
+    )
+    assert response.status_code != 200
+
+
+@pytest.mark.anyio
+async def test_create_factory_star_planet_mismatch(async_client: AsyncClient) -> None:
+    await create_star(async_client, TEST_STAR)
+    await create_star(async_client, TEST_STAR_1)
+    await create_planet(async_client, TEST_STAR, TEST_PLANET)
+    response = await create_factory(
+        async_client, TEST_STAR_1, TEST_PLANET, TEST_FACTORY
+    )
+    assert response.status_code != 200
+
+
+@pytest.mark.anyio
 async def test_create_factory_wrong_machine(async_client: AsyncClient) -> None:
     await create_star(async_client, TEST_STAR)
     await create_planet(async_client, TEST_STAR, TEST_PLANET)
@@ -139,5 +170,96 @@ async def test_create_factory_wrong_count(async_client: AsyncClient) -> None:
     await create_planet(async_client, TEST_STAR, TEST_PLANET)
     response = await create_factory(
         async_client, TEST_STAR, TEST_PLANET, TEST_FACTORY, count=0
+    )
+    assert response.status_code != 200
+
+
+@pytest.mark.anyio
+async def test_update_factory(async_client: AsyncClient) -> None:
+    await create_star(async_client, TEST_STAR)
+    await create_star(async_client, TEST_STAR_1)
+    await create_planet(async_client, TEST_STAR, TEST_PLANET)
+    await create_planet(async_client, TEST_STAR_1, TEST_PLANET_1)
+    await create_factory(async_client, TEST_STAR, TEST_PLANET, TEST_FACTORY)
+    factory = await read_factory(async_client, TEST_STAR, TEST_PLANET, TEST_FACTORY)
+    id_ = factory["id"]
+    response = await update_factory(
+        client=async_client,
+        id_=id_,
+        star_name=TEST_STAR_1,
+        planet_name=TEST_PLANET_1,
+        name=TEST_FACTORY_1,
+        machine="assembler1",
+        recipe="solar_sail",
+        count=4,
+    )
+    assert response.status_code == 200
+    factory = await read_factory(
+        async_client, TEST_STAR_1, TEST_PLANET_1, TEST_FACTORY_1
+    )
+    assert factory == {
+        "star_name": TEST_STAR_1,
+        "planet_name": TEST_PLANET_1,
+        "name": TEST_FACTORY_1,
+        "machine": "assembler1",
+        "recipe": "solar_sail",
+        "count": 4,
+        "id": ANY,
+        "production": {
+            "graphene": -0.75,
+            "photon_combiner": -0.75,
+            "solar_sail": 1.5,
+        },
+    }
+
+
+@pytest.mark.anyio
+async def test_update_factory_wrong_star(async_client: AsyncClient) -> None:
+    await create_star(async_client, TEST_STAR)
+    await create_planet(async_client, TEST_STAR, TEST_PLANET)
+    await create_factory(async_client, TEST_STAR, TEST_PLANET, TEST_FACTORY)
+    factory = await read_factory(async_client, TEST_STAR, TEST_PLANET, TEST_FACTORY)
+    id_ = factory["id"]
+    response = await update_factory(
+        client=async_client,
+        id_=id_,
+        star_name=TEST_STAR_1,
+        planet_name=TEST_PLANET,
+        name=TEST_FACTORY,
+    )
+    assert response.status_code != 200
+
+
+@pytest.mark.anyio
+async def test_update_factory_wrong_planet(async_client: AsyncClient) -> None:
+    await create_star(async_client, TEST_STAR)
+    await create_planet(async_client, TEST_STAR, TEST_PLANET)
+    await create_factory(async_client, TEST_STAR, TEST_PLANET, TEST_FACTORY)
+    factory = await read_factory(async_client, TEST_STAR, TEST_PLANET, TEST_FACTORY)
+    id_ = factory["id"]
+    response = await update_factory(
+        client=async_client,
+        id_=id_,
+        star_name=TEST_STAR,
+        planet_name=TEST_PLANET_1,
+        name=TEST_FACTORY,
+    )
+    assert response.status_code != 200
+
+
+@pytest.mark.anyio
+async def test_update_factory_star_planet_mismatch(async_client: AsyncClient) -> None:
+    await create_star(async_client, TEST_STAR)
+    await create_star(async_client, TEST_STAR_1)
+    await create_planet(async_client, TEST_STAR, TEST_PLANET)
+    await create_factory(async_client, TEST_STAR, TEST_PLANET, TEST_FACTORY)
+    factory = await read_factory(async_client, TEST_STAR, TEST_PLANET, TEST_FACTORY)
+    id_ = factory["id"]
+    response = await update_factory(
+        client=async_client,
+        id_=id_,
+        star_name=TEST_STAR_1,
+        planet_name=TEST_PLANET,
+        name=TEST_FACTORY,
     )
     assert response.status_code != 200
