@@ -263,3 +263,20 @@ async def test_update_factory_star_planet_mismatch(async_client: AsyncClient) ->
         name=TEST_FACTORY,
     )
     assert response.status_code != 200
+
+
+@pytest.mark.anyio
+async def test_update_factory_empty_name(async_client: AsyncClient) -> None:
+    await create_star(async_client, TEST_STAR)
+    await create_planet(async_client, TEST_STAR, TEST_PLANET)
+    await create_factory(async_client, TEST_STAR, TEST_PLANET, TEST_FACTORY)
+    factory = await read_factory(async_client, TEST_STAR, TEST_PLANET, TEST_FACTORY)
+    id_ = factory["id"]
+    response = await update_factory(
+        client=async_client,
+        id_=id_,
+        star_name=TEST_STAR,
+        planet_name=TEST_PLANET,
+        name="",
+    )
+    assert response.status_code != 200
