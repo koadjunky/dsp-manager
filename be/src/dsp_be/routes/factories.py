@@ -9,11 +9,7 @@ from dsp_be.motor.driver import get_db
 from dsp_be.motor.factory import FactoryRepository
 from dsp_be.motor.planet import PlanetRepository
 from dsp_be.motor.star import StarRepository
-from dsp_be.routes.factories_dto import (
-    FactoryCreateDto,
-    FactoryDeleteDto,
-    FactoryUpdateDto,
-)
+from dsp_be.routes.factories_dto import FactoryCreateDto, FactoryUpdateDto
 
 router = APIRouter()
 
@@ -109,7 +105,7 @@ async def update_factory(factory_dto: FactoryUpdateDto, db: Any = Depends(get_db
     await FactoryRepository(db).update(factory)
 
 
-@router.delete("/")
-async def delete_factory(factory_dto: FactoryDeleteDto, db: Any = Depends(get_db)):
-    logger.info(f"Deleting factory {factory_dto.id}")
-    await FactoryRepository(db).delete(factory_dto.id)
+@router.delete("/{factory_id}")
+async def delete_factory(factory_id: str, db: Any = Depends(get_db)):
+    logger.info(f"Deleting factory {factory_id}")
+    await FactoryRepository(db).delete(factory_id)

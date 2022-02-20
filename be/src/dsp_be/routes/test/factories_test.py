@@ -354,3 +354,29 @@ async def test_update_factory_wrong_count(async_client: AsyncClient) -> None:
         count=0,
     )
     assert response.status_code != 200
+
+
+@pytest.mark.anyio
+async def test_delete_factory(async_client: AsyncClient) -> None:
+    await create_star(async_client, TEST_STAR)
+    await create_planet(async_client, TEST_STAR, TEST_PLANET)
+    await create_factory(async_client, TEST_STAR, TEST_PLANET, TEST_FACTORY)
+    factory = await read_factory(async_client, TEST_STAR, TEST_PLANET, TEST_FACTORY)
+    id_ = factory["id"]
+    response = await delete_factory_id(async_client, id_)
+    assert response.status_code == 200
+    factory = await read_factory(async_client, TEST_STAR, TEST_PLANET, TEST_FACTORY)
+    assert factory is None
+
+
+@pytest.mark.anyio
+async def test_delete_factory_non_existing(async_client: AsyncClient) -> None:
+    await create_star(async_client, TEST_STAR)
+    await create_planet(async_client, TEST_STAR, TEST_PLANET)
+    await create_factory(async_client, TEST_STAR, TEST_PLANET, TEST_FACTORY)
+    factory = await read_factory(async_client, TEST_STAR, TEST_PLANET, TEST_FACTORY)
+    id_ = factory["id"]
+    response = await delete_factory_id(async_client, id_)
+    assert response.status_code == 200
+    response = await delete_factory_id(async_client, id_)
+    assert response.status_code == 200
