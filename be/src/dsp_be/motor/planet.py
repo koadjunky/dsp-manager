@@ -12,7 +12,7 @@ from dsp_be.logic.star import Star
 class PlanetModel:
     id: str
     name: str
-    star_name: str  # TODO: Should link by star_id
+    star_id: str
     resources: Dict[str, float]
     imports: List[str]
     exports: List[str]
@@ -22,7 +22,7 @@ class PlanetModel:
         model = PlanetModel(
             id=planet.id,
             name=planet.name,
-            star_name=planet.star_name,
+            star_id=planet.star_id,
             resources=planet.resources.copy(),
             imports=planet.imports.copy(),
             exports=planet.exports.copy(),
@@ -45,7 +45,7 @@ class PlanetModel:
         model = PlanetModel(
             id=document["id"],
             name=document["name"],
-            star_name=document["star_name"],
+            star_id=document["star_id"],
             resources=document["resources"].copy(),
             imports=document["imports"].copy(),
             exports=document["exports"].copy(),

@@ -13,7 +13,7 @@ from dsp_be.logic.planet import Planet
 class FactoryModel:
     id: str
     name: str
-    planet_name: str  # TODO: Should link by planet_id
+    planet_id: str
     recipe_name: str
     machine_name: str
     count: int
@@ -22,7 +22,7 @@ class FactoryModel:
     def from_logic(cls, factory: Factory) -> "FactoryModel":
         model = FactoryModel(
             id=factory.id,
-            planet_name=factory.planet_name,
+            planet_id=factory.planet_id,
             name=factory.name,
             recipe_name=factory.recipe_name,
             machine_name=factory.machine_name,
@@ -47,7 +47,7 @@ class FactoryModel:
         model = FactoryModel(
             id=document["id"],
             name=document["name"],
-            planet_name=document["planet_name"],
+            planet_id=document["planet_id"],
             recipe_name=document["recipe_name"],
             machine_name=document["machine_name"],
             count=document["count"],
@@ -71,17 +71,17 @@ class FactoryRepository:
             {"_id": _id}, {"$set": jsonable_encoder(model)}
         )
 
-    async def list(self, planet_name: str) -> List["FactoryModel"]:
+    async def list(self, planet_id: str) -> List["FactoryModel"]:
         return [
             FactoryModel.from_dict(doc)
-            async for doc in self.db.factory.find({"planet_name": planet_name})
+            async for doc in self.db.factory.find({"planet_id": planet_id})
         ]
 
     async def find_name(
-        self, planet_name: str, factory_name: str
+        self, planet_id: str, factory_name: str
     ) -> Optional["FactoryModel"]:
         doc = await self.db.factory.find_one(
-            {"planet_name": planet_name, "name": factory_name}
+            {"planet_id": planet_id, "name": factory_name}
         )
         if doc is None:
             return None

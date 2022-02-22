@@ -27,6 +27,10 @@ class Factory:
         )
 
     @property
+    def planet_id(self) -> str:
+        return getattr(self._planet, "id", None)
+
+    @property
     def planet_name(self) -> str:
         return getattr(self._planet, "name", None)
 

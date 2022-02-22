@@ -37,6 +37,10 @@ class Planet:
         return result
 
     @property
+    def star_id(self) -> str:
+        return getattr(self._star, "id", None)
+
+    @property
     def star_name(self) -> str:
         return getattr(self._star, "name", None)
 

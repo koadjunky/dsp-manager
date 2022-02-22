@@ -36,7 +36,7 @@ async def get_stars(db: Any = Depends(get_db)) -> SystemDto:
             model.to_logic(star) for model in await PlanetRepository(db).list(star.name)
         ]
         for planet in planets:
-            for model in await FactoryRepository(db).list(planet.name):
+            for model in await FactoryRepository(db).list(planet.id):
                 model.to_logic(planet, config)
     return SystemDto.from_logic(stars)
 
@@ -59,7 +59,7 @@ async def get_star(star_name: str, db: Any = Depends(get_db)) -> StarDto:
         model.to_logic(star) for model in await PlanetRepository(db).list(star_name)
     ]
     for planet in planets:
-        for model in await FactoryRepository(db).list(planet.name):
+        for model in await FactoryRepository(db).list(planet.id):
             model.to_logic(planet, config)
     return StarDto.from_logic(star)
 
@@ -88,7 +88,7 @@ async def get_planet(
             status_code=400, detail=f"Planet {planet_name} does not exist"
         )
     planet = planet_model.to_logic(star)
-    for model in await FactoryRepository(db).list(planet.name):
+    for model in await FactoryRepository(db).list(planet.id):
         model.to_logic(planet, config)
     return PlanetDto.from_logic(planet)
 

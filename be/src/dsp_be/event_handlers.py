@@ -17,7 +17,7 @@ from dsp_be.motor.star import StarRepository
 def start_app_handler(app: FastAPI) -> Callable:
     async def update_or_create_factory(factory: Factory):
         factory_db = await FactoryRepository(get_db()).find_name(
-            factory.planet_name, factory.name
+            factory.planet_id, factory.name
         )
         if factory_db is not None:
             factory.id = factory_db.id

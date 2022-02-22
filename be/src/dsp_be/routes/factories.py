@@ -33,7 +33,7 @@ async def create_factory(factory_dto: FactoryCreateDto, db: Any = Depends(get_db
         raise HTTPException(
             status_code=400, detail=f"Planet {factory_dto.planet_name} does not exit"
         )
-    if planet_model.star_name != star_model.name:
+    if planet_model.star_id != star_model.id:
         logger.warning(
             f"Planet {factory_dto.planet_name} doesn't belong to star {factory_dto.star_name}"
         )
@@ -78,7 +78,7 @@ async def update_factory(factory_dto: FactoryUpdateDto, db: Any = Depends(get_db
         raise HTTPException(
             status_code=400, detail=f"Planet {factory_dto.planet_name} does not exit"
         )
-    if planet_model.star_name != star_model.name:
+    if planet_model.star_id != star_model.id:
         logger.warning(
             f"Planet {factory_dto.planet_name} doesn't belong to star {factory_dto.star_name}"
         )
