@@ -40,7 +40,7 @@ async def create_planet(planet_dto: PlanetCreateDto, db: Any = Depends(get_db)):
     await PlanetRepository(db).create(planet)
 
 
-# TODO: Make id key for planets
+# TODO: Make id key for stars
 @router.put("/")
 async def update_planet(planet_dto: PlanetUpdateDto, db: Any = Depends(get_db)):
     logger.info(f"Updating planet {planet_dto.name}")
