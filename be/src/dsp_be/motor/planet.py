@@ -67,10 +67,10 @@ class PlanetRepository:
         _id = model_db["_id"]
         await self.db.planet.update_one({"_id": _id}, {"$set": jsonable_encoder(model)})
 
-    async def list(self, star_name: str) -> List["PlanetModel"]:
+    async def list(self, star_id: str) -> List["PlanetModel"]:
         return [
             PlanetModel.from_dict(doc)
-            async for doc in self.db.planet.find({"star_name": star_name})
+            async for doc in self.db.planet.find({"star_id": star_id})
         ]
 
     async def find(self, planet_id: str) -> Optional["PlanetModel"]:

@@ -1,6 +1,7 @@
 import uvicorn
 from fastapi import Depends, FastAPI, Request
 from loguru import logger
+from starlette.middleware.cors import CORSMiddleware
 
 from dsp_be.event_handlers import start_app_handler, stop_app_handler
 from dsp_be.routes.router import api_router
@@ -28,6 +29,13 @@ def get_app() -> FastAPI:
 
     app.add_event_handler("startup", start_app_handler(app))
     app.add_event_handler("shutdown", stop_app_handler(app))
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
     return app
 

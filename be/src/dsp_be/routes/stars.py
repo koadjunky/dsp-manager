@@ -56,7 +56,7 @@ async def get_star(star_name: str, db: Any = Depends(get_db)) -> StarDto:
         raise HTTPException(status_code=400, detail=f"Star {star_name} doesn't exist")
     star = star_model.to_logic()
     planets = [
-        model.to_logic(star) for model in await PlanetRepository(db).list(star_name)
+        model.to_logic(star) for model in await PlanetRepository(db).list(star.id)
     ]
     for planet in planets:
         for model in await FactoryRepository(db).list(planet.id):
