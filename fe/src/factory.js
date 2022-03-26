@@ -1,4 +1,12 @@
 import React from 'react';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import CardActionArea from '@mui/material/CardActionArea';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import Typography from '@mui/material/Typography';
+import TableRow from '@mui/material/TableRow';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -8,8 +16,21 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
+import { createTheme } from '@mui/material/styles';
 import { recipes } from './recipes';
 import { machines } from './machines';
+import { ThemeProvider } from '@emotion/react';
+
+
+const theme = createTheme();
+
+theme.typography.h6 = {
+    fontSize: '1.0rem'
+};
+
+theme.typography.body1 = {
+    fontSize: '0.8rem'
+}
 
 export default class Factory extends React.Component {
 
@@ -43,16 +64,51 @@ export default class Factory extends React.Component {
     render() {
         return (
             <div>
-                <div className="factory" onClick={() => this.openDialog()}>
-                    <div>Name: {this.props.factory.name}</div>
-                    <div>Recipe: {this.props.factory.recipe}</div>
-                    <div>Machine: {this.props.factory.machine}</div>
-                    <div>Count: {this.props.factory.count}</div>
-                    <div>Production:</div>
-                    {Object.entries(this.props.factory.production).map(([key, value], index) => {
-                        return (<div>{key}: {value}</div>);
-                    })}
-                </div>
+                <ThemeProvider theme={theme}>
+                <Card variant="outlined">
+                    <CardActionArea onClick={() => this.openDialog()}>
+                        <CardContent>
+                            <Typography variant="h6" component="div">
+                                Name:
+                            </Typography>
+                            <Typography variant="body1" component="div">
+                                {this.props.factory.name}
+                            </Typography>
+                            <Typography variant="h6" component="div">
+                                Recipe:
+                            </Typography>
+                            <Typography variant="body1" component="div">
+                                {this.props.factory.recipe}
+                            </Typography>
+                            <Typography variant="h6" component="div">
+                                Machine:
+                            </Typography>
+                            <Typography variant="body1" component="div">
+                                {this.props.factory.machine}
+                            </Typography>
+                            <Typography variant="h6" component="div">
+                                Count:
+                            </Typography>
+                            <Typography variant="body1" component="div">
+                                {this.props.factory.count}
+                            </Typography>
+                            <Typography variant="h6" component="div">
+                                Production:
+                            </Typography>
+                            <Table size="small">
+                                <TableBody>
+                                    {Object.entries(this.props.factory.production).map(([key, value], index) => {
+                                        return (<TableRow>
+                                                    <TableCell>{key}:</TableCell>
+                                                    <TableCell>{value}</TableCell>
+                                                </TableRow>);
+                                    })}
+                                </TableBody>
+                            </Table>
+                        </CardContent>
+                    </CardActionArea>
+                </Card>
+                </ThemeProvider>
                 <Dialog open={this.state.dialogOpen} onClose={() => this.closeDialog()}>
                 <DialogTitle>Configure Factory</DialogTitle>
                 <DialogContent>
