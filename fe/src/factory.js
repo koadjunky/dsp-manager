@@ -1,7 +1,10 @@
 import React from 'react';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
+import CardMedia from '@mui/material/CardMedia';
 import CardActionArea from '@mui/material/CardActionArea';
+import Avatar from '@mui/material/Avatar';
+import Stack from '@mui/material/Stack';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -65,42 +68,22 @@ export default class Factory extends React.Component {
         return (
             <div>
                 <ThemeProvider theme={theme}>
-                <Card variant="outlined">
+                <Card variant="outlined" sx={{ maxWidth: 240, minWidth: 240 }}>
                     <CardActionArea onClick={() => this.openDialog()}>
+                        <CardMedia component="div" image="/images/factory.png" sx={{ minHeight: 120, maxHeight: 120 }} alt="Factory">
+                            <Typography variant="h6" component="div" color="common.white">{this.props.factory.name}</Typography>
+                            <Stack direction="row" spacing={1} sx={{ marginTop: 7 }}>
+                                <Avatar alt="Assembler 1" src={"/images/" + this.props.factory.machine + ".webp"} sx={{ bgcolor: "white" }} />
+                                <Avatar alt={this.props.factory.count} sx={{ bgcolor: "white", color: "black" }}>{this.props.factory.count}</Avatar>
+                            </Stack>
+                        </CardMedia>
                         <CardContent>
-                            <Typography variant="h6" component="div">
-                                Name:
-                            </Typography>
-                            <Typography variant="body1" component="div">
-                                {this.props.factory.name}
-                            </Typography>
-                            <Typography variant="h6" component="div">
-                                Recipe:
-                            </Typography>
-                            <Typography variant="body1" component="div">
-                                {this.props.factory.recipe}
-                            </Typography>
-                            <Typography variant="h6" component="div">
-                                Machine:
-                            </Typography>
-                            <Typography variant="body1" component="div">
-                                {this.props.factory.machine}
-                            </Typography>
-                            <Typography variant="h6" component="div">
-                                Count:
-                            </Typography>
-                            <Typography variant="body1" component="div">
-                                {this.props.factory.count}
-                            </Typography>
-                            <Typography variant="h6" component="div">
-                                Production:
-                            </Typography>
                             <Table size="small">
                                 <TableBody>
                                     {Object.entries(this.props.factory.production).map(([key, value], index) => {
                                         return (<TableRow>
-                                                    <TableCell>{key}:</TableCell>
-                                                    <TableCell>{value}</TableCell>
+                                                    <TableCell style={{borderBottom: "none"}}>{key}:</TableCell>
+                                                    <TableCell align="right" style={{borderBottom: "none"}}>{value}</TableCell>
                                                 </TableRow>);
                                     })}
                                 </TableBody>
