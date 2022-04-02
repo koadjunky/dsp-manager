@@ -68,7 +68,7 @@ export default class Factory extends React.Component {
         return (
             <div>
                 <ThemeProvider theme={theme}>
-                <Card variant="outlined" sx={{ maxWidth: 240, minWidth: 240 }}>
+                <Card variant="outlined" sx={{ maxWidth: 240, minWidth: 240, m: 3 }}>
                     <CardActionArea onClick={() => this.openDialog()}>
                         <CardMedia component="div" image="/images/factory.png" sx={{ minHeight: 120, maxHeight: 120 }} alt="Factory">
                             <Typography variant="h6" component="div" color="common.white">{this.props.factory.name}</Typography>

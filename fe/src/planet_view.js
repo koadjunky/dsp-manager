@@ -1,6 +1,15 @@
 import React from 'react';
+import Grid from '@mui/material/Grid';
+import Box from '@mui/material/Box';
+import Paper from '@mui/material/Paper';
+import Typography from '@mui/material/Typography';
+import { styled } from '@mui/material/styles';
 import { useParams, Link } from "react-router-dom";
 import Factory from './factory'
+
+const Item = styled(Paper)(({theme}) => ({
+    padding: theme.spacing(1),
+}));
 
 class PlanetView extends React.Component {
     constructor(props) {
@@ -18,23 +27,37 @@ class PlanetView extends React.Component {
     }
     render() {
         return (
-            <div>
-                <Link to={`/stars/${this.props.star_name}`}>Back to {this.props.star_name}</Link>
-                <div className="system">
-                    <div className="name">{this.state.name}</div>
-                    <div className="title">Imports</div>
+            <Grid container spacing={1}>
+                <Grid item xs={12}>
+                    <Item>
+                        <Link to={`/stars/${this.props.star_name}`}>Back to {this.props.star_name}</Link>
+                    </Item>
+                </Grid>
+                <Grid item xs={12}>
+                    <Item>{this.state.name}</Item>
+                </Grid>
+                <Grid item xs={6}>
+                    <Item>
+                        <Typography>Imports</Typography>
                         {Object.entries(this.state.trade).map(([key, value], index) => {
-                           return (value < 0 ? <div>{key}: {value}</div> : "");
+                           return (value < 0 ? <Typography>{key}: {value}</Typography> : "");
                         })}
-                    <div className="title">Exports</div>
+                    </Item>
+                </Grid>
+                <Grid item xs={6}>
+                    <Item>
+                        <Typography>Exports</Typography>
                         {Object.entries(this.state.trade).map(([key, value], index) => {
-                            return (value > 0 ? <div>{key}: {value}</div> : "");
+                            return (value > 0 ? <Typography>{key}: {value}</Typography> : "");
                         })}
-                </div>
-                <div className='wrapper'>
-                    {this.state.factories.map(item => <Factory factory={item}/> )}
-                </div>
-            </div>
+                    </Item>
+                </Grid>
+                <Grid item xs={12}>
+                    <Box sx={{display: 'flex', flexWrap: 'wrap', m: '10'}}>
+                        {this.state.factories.map(item => <Factory factory={item}/> )}
+                    </Box>
+                </Grid>
+            </Grid>
         );
     }
 }
