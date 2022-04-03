@@ -33,7 +33,7 @@ theme.typography.h6 = {
 
 theme.typography.body1 = {
     fontSize: '0.8rem'
-}
+};
 
 export default class Factory extends React.Component {
 
