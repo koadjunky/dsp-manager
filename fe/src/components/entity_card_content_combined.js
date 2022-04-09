@@ -12,7 +12,7 @@ class CombinedEntityCardContent extends React.Component {
                 <Table size="small">
                     <TableBody>
                         {Object.entries(this.props.map).map(([key, value], index) => {
-                            return (<TableRow>
+                            return (<TableRow key={key}>
                                         <TableCell style={{borderBottom: "none"}}>{key}:</TableCell>
                                         <TableCell align="right" style={{borderBottom: "none"}}>{value}</TableCell>
                                     </TableRow>);

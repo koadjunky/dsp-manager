@@ -69,7 +69,7 @@ export default class Factory extends React.Component {
                                 <Typography variant="h6" component="div" color="common.white">{this.props.factory.name}</Typography>
                                 <Stack direction="row" spacing={1} sx={{ marginTop: 7 }}>
                                     <Avatar alt="Assembler 1" src={"/images/" + this.props.factory.machine + ".webp"} sx={{ bgcolor: "white" }} />
-                                    <Avatar alt={this.props.factory.count} sx={{ bgcolor: "white", color: "black" }}>{this.props.factory.count}</Avatar>
+                                    <Avatar sx={{ bgcolor: "white", color: "black" }}>{this.props.factory.count}</Avatar>
                                 </Stack>
                             </CardMedia>
                             <CombinedEntityCardContent map={this.props.factory.production} />

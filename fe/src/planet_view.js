@@ -48,13 +48,13 @@ class PlanetView extends React.Component {
                     <Item>
                         <Typography>Exports</Typography>
                         {Object.entries(this.state.trade).map(([key, value], index) => {
-                            return (value > 0 ? <Typography>{key}: {value}</Typography> : "");
+                            return (value > 0 ? <Typography key={key}>{key}: {value}</Typography> : "");
                         })}
                     </Item>
                 </Grid>
                 <Grid item xs={12}>
                     <Box sx={{display: 'flex', flexWrap: 'wrap', m: '10'}}>
-                        {this.state.factories.map(item => <Factory factory={item}/> )}
+                        {this.state.factories.map(item => <Factory key={item.id} factory={item}/> )}
                     </Box>
                 </Grid>
             </Grid>

@@ -13,26 +13,26 @@ class SplitEntityCardContent extends React.Component {
                 <Typography variant="h6" component="div">Imports:</Typography>
                 <Table size="small">
                     <TableBody>
-                        {Object.entries(this.props.map).map(([key, value], index) => {
-                            return (value < 0 ? 
-                                <TableRow>
+                        {Object.entries(this.props.map).filter(([key, value]) => value < 0).map(([key, value], index) => {
+                            return (
+                                <TableRow key={key}>
                                     <TableCell style={{borderBottom: "none"}}>{key}:</TableCell>
                                     <TableCell align="right" style={{borderBottom: "none"}}>{value}</TableCell>
                                 </TableRow> 
-                            : "");
+                            );
                         })}
                     </TableBody>
                 </Table>
                 <Typography variant="h6" component="div">Exports:</Typography>
                 <Table size="small">
                     <TableBody>
-                        {Object.entries(this.props.map).map(([key, value], index) => {
-                            return (value > 0 ? 
-                                <TableRow>
+                        {Object.entries(this.props.map).filter(([key, value]) => value > 0).map(([key, value], index) => {
+                            return (
+                                <TableRow key={key}>
                                     <TableCell style={{borderBottom: "none"}}>{key}:</TableCell>
                                     <TableCell align="right" style={{borderBottom: "none"}}>{value}</TableCell>
                                 </TableRow>
-                            : "");
+                            );
                         })}
                     </TableBody>
                 </Table>
