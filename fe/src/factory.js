@@ -1,15 +1,10 @@
 import React from 'react';
 import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import CardActionArea from '@mui/material/CardActionArea';
 import Avatar from '@mui/material/Avatar';
 import Stack from '@mui/material/Stack';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
 import Typography from '@mui/material/Typography';
-import TableRow from '@mui/material/TableRow';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -19,11 +14,11 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
+import { ThemeProvider } from '@emotion/react';
 import { createTheme } from '@mui/material/styles';
 import { recipes } from './recipes';
 import { machines } from './machines';
-import { ThemeProvider } from '@emotion/react';
-
+import CombinedEntityCardContent from './components/entity_card_content_combined';
 
 const theme = createTheme();
 
@@ -68,29 +63,18 @@ export default class Factory extends React.Component {
         return (
             <div>
                 <ThemeProvider theme={theme}>
-                <Card variant="outlined" sx={{ maxWidth: 240, minWidth: 240, m: 3 }}>
-                    <CardActionArea onClick={() => this.openDialog()}>
-                        <CardMedia component="div" image="/images/factory.png" sx={{ minHeight: 120, maxHeight: 120 }} alt="Factory">
-                            <Typography variant="h6" component="div" color="common.white">{this.props.factory.name}</Typography>
-                            <Stack direction="row" spacing={1} sx={{ marginTop: 7 }}>
-                                <Avatar alt="Assembler 1" src={"/images/" + this.props.factory.machine + ".webp"} sx={{ bgcolor: "white" }} />
-                                <Avatar alt={this.props.factory.count} sx={{ bgcolor: "white", color: "black" }}>{this.props.factory.count}</Avatar>
-                            </Stack>
-                        </CardMedia>
-                        <CardContent>
-                            <Table size="small">
-                                <TableBody>
-                                    {Object.entries(this.props.factory.production).map(([key, value], index) => {
-                                        return (<TableRow>
-                                                    <TableCell style={{borderBottom: "none"}}>{key}:</TableCell>
-                                                    <TableCell align="right" style={{borderBottom: "none"}}>{value}</TableCell>
-                                                </TableRow>);
-                                    })}
-                                </TableBody>
-                            </Table>
-                        </CardContent>
-                    </CardActionArea>
-                </Card>
+                    <Card variant="outlined" sx={{ maxWidth: 240, minWidth: 240, m: 3 }}>
+                        <CardActionArea onClick={() => this.openDialog()}>
+                            <CardMedia component="div" image="/images/factory.png" sx={{ minHeight: 120, maxHeight: 120 }} alt="Factory">
+                                <Typography variant="h6" component="div" color="common.white">{this.props.factory.name}</Typography>
+                                <Stack direction="row" spacing={1} sx={{ marginTop: 7 }}>
+                                    <Avatar alt="Assembler 1" src={"/images/" + this.props.factory.machine + ".webp"} sx={{ bgcolor: "white" }} />
+                                    <Avatar alt={this.props.factory.count} sx={{ bgcolor: "white", color: "black" }}>{this.props.factory.count}</Avatar>
+                                </Stack>
+                            </CardMedia>
+                            <CombinedEntityCardContent map={this.props.factory.production} />
+                        </CardActionArea>
+                    </Card>
                 </ThemeProvider>
                 <Dialog open={this.state.dialogOpen} onClose={() => this.closeDialog()}>
                 <DialogTitle>Configure Factory</DialogTitle>

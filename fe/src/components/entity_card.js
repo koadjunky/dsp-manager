@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import { createTheme } from '@mui/material/styles';
 import { ThemeProvider } from '@emotion/react';
 import SplitEntityCardContent from './entity_card_content_split';
+import CombinedEntityCardContent from './entity_card_content_combined';
 
 const theme = createTheme();
 
@@ -28,6 +29,7 @@ class EntityCard extends React.Component {
                             <Typography variant="h6" component="div" color="common.white">{this.props.name}</Typography>
                         </CardMedia>
                         {this.props.variant === 'split' && <SplitEntityCardContent map={this.props.map} />}
+                        {this.props.variant === 'combined' && <CombinedEntityCardContent map={this.props.map} />}
                     </CardActionArea>
                 </Card>
             </ThemeProvider>
